@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Santa's Footprints Hunt! 🎅</title>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image.prod.js"></script>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
@@ -12,12 +12,22 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            touch-action: manipulation;
         }
         
         body {
             font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
         }
         
         .ar-container {
@@ -40,32 +50,37 @@
             z-index: 2;
         }
         
-        /* Name Input Modal */
+        /* Name Input Modal - Адаптивний */
         .name-modal {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
+            background: rgba(255, 255, 255, 0.98);
+            padding: clamp(20px, 5vw, 30px);
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             text-align: center;
             z-index: 1000;
             pointer-events: all;
             border: 4px solid #c41e3a;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
         
         .name-modal h2 {
             color: #c41e3a;
-            margin-bottom: 20px;
-            font-size: 24px;
+            margin-bottom: clamp(15px, 4vw, 20px);
+            font-size: clamp(20px, 6vw, 24px);
         }
         
         .name-input {
-            width: 200px;
-            padding: 12px;
-            font-size: 18px;
+            width: 100%;
+            max-width: 200px;
+            padding: clamp(10px, 3vw, 12px);
+            font-size: clamp(16px, 4vw, 18px);
             border: 2px solid #c41e3a;
             border-radius: 10px;
             margin-bottom: 15px;
@@ -76,11 +91,13 @@
             background: #c41e3a;
             color: white;
             border: none;
-            padding: 12px 30px;
-            font-size: 18px;
+            padding: clamp(10px, 3vw, 12px) clamp(20px, 6vw, 30px);
+            font-size: clamp(16px, 4vw, 18px);
             border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s;
+            width: auto;
+            min-width: 140px;
         }
         
         .start-btn:hover {
@@ -88,43 +105,46 @@
             transform: scale(1.05);
         }
         
-        /* Controls */
+        /* Controls - Адаптивні */
         .controls {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: clamp(10px, 3vw, 20px);
+            right: clamp(10px, 3vw, 20px);
             z-index: 3;
             pointer-events: all;
+            display: flex;
+            gap: 8px;
         }
         
         .control-btn {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             border: none;
-            width: 50px;
-            height: 50px;
+            width: clamp(44px, 12vw, 50px);
+            height: clamp(44px, 12vw, 50px);
             border-radius: 50%;
-            margin: 5px;
-            font-size: 20px;
+            font-size: clamp(18px, 5vw, 20px);
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        .control-btn:hover {
-            transform: scale(1.1);
-            background: white;
+        .control-btn:active {
+            transform: scale(0.95);
         }
         
         /* Language Button */
         .language-btn {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.9);
+            top: clamp(10px, 3vw, 20px);
+            right: clamp(10px, 3vw, 20px);
+            background: rgba(255, 255, 255, 0.95);
             border: none;
-            padding: 10px 15px;
+            padding: clamp(8px, 2vw, 10px) clamp(12px, 3vw, 15px);
             border-radius: 20px;
-            font-size: 14px;
+            font-size: clamp(12px, 3vw, 14px);
             cursor: pointer;
             z-index: 3;
             pointer-events: all;
@@ -134,12 +154,12 @@
         /* Store Button */
         .store-btn {
             position: fixed;
-            bottom: 20px;
-            left: 20px;
+            bottom: clamp(10px, 3vw, 20px);
+            left: clamp(10px, 3vw, 20px);
             background: linear-gradient(45deg, #FFD700, #FFA500);
             color: #8B0000;
             border: none;
-            padding: 12px 20px;
+            padding: clamp(10px, 3vw, 12px) clamp(15px, 4vw, 20px);
             border-radius: 25px;
             font-weight: bold;
             cursor: pointer;
@@ -147,18 +167,20 @@
             text-decoration: none;
             pointer-events: all;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            font-size: clamp(14px, 3.5vw, 16px);
+            white-space: nowrap;
         }
         
-        /* Message Display */
+        /* Message Display - Адаптивний */
         .message {
             position: fixed;
-            top: 20px;
+            top: clamp(10px, 3vw, 20px);
             left: 50%;
             transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.95);
-            padding: 15px 25px;
+            padding: clamp(10px, 3vw, 15px) clamp(15px, 4vw, 25px);
             border-radius: 15px;
-            font-size: 18px;
+            font-size: clamp(14px, 4vw, 18px);
             font-weight: bold;
             color: #c41e3a;
             z-index: 3;
@@ -166,32 +188,37 @@
             border: 3px solid #FFD700;
             pointer-events: none;
             display: none;
+            max-width: 90%;
+            word-wrap: break-word;
         }
         
-        /* Video Modal */
+        /* Video Modal - Адаптивний */
         .video-modal {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(0, 0, 0, 0.95);
-            padding: 20px;
+            padding: clamp(15px, 4vw, 20px);
             border-radius: 15px;
             z-index: 1001;
             display: none;
             pointer-events: all;
+            width: 90%;
+            max-width: 400px;
         }
         
         .video-modal video {
-            width: 300px;
-            height: 400px;
+            width: 100%;
+            height: auto;
+            max-height: 70vh;
             border-radius: 10px;
         }
         
         .close-video {
             position: absolute;
-            top: -15px;
-            right: -15px;
+            top: -12px;
+            right: -12px;
             background: #c41e3a;
             color: white;
             border: none;
@@ -200,6 +227,9 @@
             border-radius: 50%;
             cursor: pointer;
             font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         /* Loading Screen */
@@ -209,63 +239,176 @@
             left: 50%;
             transform: translate(-50%, -50%);
             color: white;
-            font-size: 20px;
+            font-size: clamp(16px, 5vw, 20px);
             text-align: center;
             z-index: 1000;
+            background: rgba(0,0,0,0.7);
+            padding: 30px;
+            border-radius: 15px;
         }
         
         .hidden {
             display: none;
         }
         
-        /* Target Images */
-        .target-preview {
-            width: 80px;
-            height: 80px;
-            border: 3px solid #FFD700;
-            border-radius: 10px;
-            margin: 5px;
-            background: rgba(255,255,255,0.8);
-            object-fit: contain;
-            padding: 5px;
-        }
-        
+        /* Target Images - Адаптивні */
         .targets-container {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            max-width: 400px;
+            gap: 8px;
             margin: 10px auto;
+            max-width: 100%;
         }
         
         .target-item {
             text-align: center;
-            margin: 5px;
+            flex: 1;
+            min-width: 70px;
+            max-width: 90px;
+        }
+        
+        .target-preview {
+            width: 100%;
+            aspect-ratio: 1;
+            border: 3px solid #FFD700;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.9);
+            object-fit: contain;
+            padding: 8px;
+            font-size: clamp(12px, 3vw, 14px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
         }
         
         .target-label {
-            font-size: 12px;
-            margin-top: 2px;
+            font-size: clamp(10px, 2.5vw, 12px);
+            margin-top: 4px;
             color: #333;
+            word-break: break-word;
         }
-
+        
         /* Error Message */
         .error-message {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(255, 0, 0, 0.9);
+            background: rgba(255, 0, 0, 0.95);
             color: white;
             padding: 20px;
             border-radius: 10px;
             text-align: center;
             z-index: 1002;
             display: none;
+            max-width: 90%;
+            font-size: clamp(14px, 4vw, 16px);
+        }
+        
+        /* Orientation Warning */
+        .orientation-warning {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            z-index: 1003;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            font-size: clamp(16px, 5vw, 20px);
+        }
+        
+        /* Mobile-specific optimizations */
+        @media (max-width: 768px) {
+            .name-modal {
+                width: 95%;
+                padding: 20px 15px;
+            }
+            
+            .controls {
+                bottom: 10px;
+                right: 10px;
+            }
+            
+            .store-btn {
+                bottom: 10px;
+                left: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .target-item {
+                min-width: 60px;
+            }
+            
+            .target-preview {
+                padding: 5px;
+                font-size: 11px;
+            }
+            
+            .message {
+                font-size: 14px;
+                padding: 10px 15px;
+            }
+        }
+        
+        /* Планшети */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .name-modal {
+                max-width: 600px;
+            }
+            
+            .target-preview {
+                font-size: 16px;
+            }
+        }
+        
+        /* Портретна орієнтація */
+        @media (orientation: portrait) and (max-height: 600px) {
+            .name-modal {
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+            
+            .targets-container {
+                gap: 5px;
+            }
+        }
+        
+        /* Ландшафтна орієнтація */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .name-modal {
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            
+            .controls {
+                bottom: 5px;
+                right: 5px;
+            }
+            
+            .store-btn {
+                bottom: 5px;
+                left: 5px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Orientation Warning -->
+    <div id="orientationWarning" class="orientation-warning">
+        <div>
+            <p>📱 Please rotate your device to portrait mode</p>
+            <p>For the best experience</p>
+        </div>
+    </div>
+
     <!-- Loading Screen -->
     <div id="loading" class="loading">
         <p>🔄 Loading game...</p>
@@ -276,12 +419,11 @@
     <div id="errorMessage" class="error-message">
         <p>🚨 AR system failed to load</p>
         <p>Please check if targets.mind file exists</p>
-        <button onclick="location.reload()" style="margin-top: 10px; padding: 5px 10px;">Retry</button>
+        <button onclick="location.reload()" style="margin-top: 10px; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer;">Retry</button>
     </div>
 
     <!-- AR Scene -->
     <div class="ar-container">
-        <!-- Fixed MindAR Scene -->
         <a-scene 
             id="main-scene"
             mindar-image="imageTargetSrc: targets.mind; autoStart: false; maxTrack: 5;"
@@ -290,7 +432,6 @@
             renderer="colorManagement: true;"
             vr-mode-ui="enabled: false">
             
-            <!-- Camera -->
             <a-camera active="false" position="0 0 0"></a-camera>
 
             <!-- Start Target -->
@@ -310,7 +451,7 @@
             <!-- Target 2 - Second Footprint -->
             <a-entity mindar-image-target="targetIndex: 2">
                 <a-image id="footprint-2" src="footprints/2.png" width="1" height="1" position="0 0.5 0"></a-image>
-                <a-text id="message-2" value="" position="0 1.5 0" align="center" color="#FFD700"></a-text>
+                <a-text id="message-2" value="" position="0 1.5 0" align-items="center" color="#FFD700"></a-text>
             </a-entity>
 
             <!-- Target 3 - Third Footprint -->
@@ -366,7 +507,7 @@
                         <div class="target-label">target-gift.png</div>
                     </div>
                 </div>
-                <p style="font-size: 12px; margin-top: 10px; color: #666;">
+                <p style="font-size: clamp(11px, 3vw, 12px); margin-top: 10px; color: #666;">
                     Print these images to play the game!
                 </p>
             </div>
@@ -411,6 +552,16 @@
         const musicBtn = document.getElementById('musicBtn');
         const languageBtn = document.getElementById('languageBtn');
         const scene = document.getElementById('main-scene');
+
+        // Check device orientation
+        function checkOrientation() {
+            const warning = document.getElementById('orientationWarning');
+            if (window.innerHeight < window.innerWidth && window.innerWidth < 1000) {
+                warning.style.display = 'flex';
+            } else {
+                warning.style.display = 'none';
+            }
+        }
 
         // Translations
         const translations = {
@@ -464,24 +615,19 @@
         function updateLanguage() {
             const t = translations[currentLanguage];
             
-            // Update modal
             document.querySelector('.name-modal h2').textContent = t.welcome;
             document.querySelector('.name-modal p').textContent = t.nameQuestion;
             document.getElementById('playerName').placeholder = t.namePlaceholder;
             document.querySelector('.start-btn').textContent = t.startButton;
             document.querySelector('.name-modal strong').textContent = t.markersTitle;
             
-            // Update loading screen
             document.querySelector('#loading p:first-child').textContent = t.loading;
             document.querySelector('#loading p:last-child').textContent = t.pleaseWait;
             
-            // Update store button
             document.querySelector('.store-btn').textContent = t.store;
             
-            // Update language button
             languageBtn.textContent = currentLanguage === 'en' ? 'UA' : 'EN';
             
-            // Update AR text
             document.getElementById('start-text').setAttribute('value', t.startGame);
             document.getElementById('gift-text').setAttribute('value', t.gift);
             
@@ -492,15 +638,12 @@
             }
         }
 
-        // Toggle language
         function toggleLanguage() {
             currentLanguage = currentLanguage === 'en' ? 'ua' : 'en';
             updateLanguage();
         }
 
-        // Setup event listeners
         function setupEventListeners() {
-            // Target found events
             scene.addEventListener('targetFound', event => {
                 const targetIndex = event.target.getAttribute('mindar-image-target').targetIndex;
                 const t = translations[currentLanguage];
@@ -528,7 +671,6 @@
             });
         }
 
-        // Start Game Function
         function startGame() {
             const nameInput = document.getElementById('playerName');
             playerName = nameInput.value.trim();
@@ -542,27 +684,23 @@
             document.getElementById('nameModal').style.display = 'none';
             gameStarted = true;
             
-            // Update messages with player name
             document.getElementById('message-1').setAttribute('value', `${playerName}, ${t.searchFootprints}`);
             document.getElementById('message-2').setAttribute('value', `${playerName}, ${t.onRightPath}`);
             document.getElementById('message-3').setAttribute('value', `${playerName}, ${t.almostThere}`);
             
             showMessage(`${t.welcomeMessage} ${playerName}! ${t.searchFootprints}`);
             
-            // Start AR system
             const arSystem = scene.systems['mindar-image-system'];
             if (arSystem) {
                 arSystem.start();
             }
             
-            // Start background music
             backgroundMusic.volume = 0.3;
             backgroundMusic.play().catch(e => console.log('Auto-play prevented:', e));
             musicPlaying = true;
             musicBtn.innerHTML = '🔊';
         }
 
-        // Show Message
         function showMessage(text) {
             const messageEl = document.getElementById('gameMessage');
             messageEl.textContent = text;
@@ -573,7 +711,6 @@
             }, 4000);
         }
 
-        // Toggle Music
         function toggleMusic() {
             if (musicPlaying) {
                 backgroundMusic.pause();
@@ -585,7 +722,6 @@
             musicPlaying = !musicPlaying;
         }
 
-        // Show Santa Video
         function showSantaVideo() {
             const videoModal = document.getElementById('videoModal');
             const santaVideo = document.getElementById('santaVideo');
@@ -596,7 +732,6 @@
             showMessage(`${t.santaGreeting} ${playerName}! 🎅`);
         }
 
-        // Close Video
         function closeVideo() {
             const videoModal = document.getElementById('videoModal');
             const santaVideo = document.getElementById('santaVideo');
@@ -606,24 +741,24 @@
             videoModal.style.display = 'none';
         }
 
-        // Restart Game
         function restartGame() {
             location.reload();
         }
 
-        // Handle scene load
+        // Event listeners
         scene.addEventListener('loaded', function() {
             document.getElementById('loading').classList.add('hidden');
             setupEventListeners();
         });
 
-        // Handle scene errors
         scene.addEventListener('error', function() {
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('errorMessage').style.display = 'block';
         });
 
-        // Handle page visibility changes
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', checkOrientation);
+
         document.addEventListener('visibilitychange', function() {
             if (document.hidden && musicPlaying) {
                 backgroundMusic.pause();
@@ -632,9 +767,26 @@
             }
         });
 
-        // Initialize the application
+        // Prevent zoom on mobile
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(e) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Initialize
         window.addEventListener('DOMContentLoaded', () => {
             updateLanguage();
+            checkOrientation();
         });
     </script>
 </body>
