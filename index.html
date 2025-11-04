@@ -1,931 +1,543 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Halloween Nail AR Try-On</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>Halloween</text></svg>">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      touch-action: manipulation;
-    }
-    body {
-      background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fad0c4);
-      overflow: hidden;
-      font-family: 'Arial', 'Segoe UI', system-ui, sans-serif;
-      color: white;
-    }
-    #video, #canvas, #confettiCanvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    #video { z-index: 1; display: none; }
-    #canvas { z-index: 2; display: none; }
-    #confettiCanvas { z-index: 60; pointer-events: none; }
-
-    .control-btn {
-      position: fixed;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(20px);
-      border: 2px solid rgba(255, 255, 255, 0.4);
-      color: white;
-      font-size: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 100;
-      transition: all 0.3s ease;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-    }
-    .control-btn:hover { transform: scale(1.15); background: rgba(255, 255, 255, 0.3); }
-
-    #langBtn { top: 20px; right: 20px; font-weight: bold; font-size: 16px; }
-    #soundBtn { top: 20px; left: 20px; }
-
-    #authorBtn {
-      position: fixed;
-      top: 78px;
-      right: 20px;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #ff6b6b, #ff4757);
-      border: 3px solid #ffd700;
-      color: white;
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 100;
-      transition: all 0.3s ease;
-      box-shadow: 0 6px 20px rgba(255, 71, 87, 0.5), 0 0 0 4px #ffd700;
-      animation: pulse-glow 2s infinite;
-    }
-    #authorBtn:hover {
-      transform: scale(1.2) rotate(10deg);
-      background: linear-gradient(135deg, #ff4757, #ff6b6b);
-      box-shadow: 0 8px 25px rgba(255, 71, 87, 0.7), 0 0 0 6px #ffd700;
-    }
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 6px 20px rgba(255, 71, 87, 0.5), 0 0 0 4px #ffd700; }
-      50% { box-shadow: 0 8px 30px rgba(255, 71, 87, 0.7), 0 0 0 6px #ffd700; }
-    }
-
-    #modeControls {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 12px;
-      z-index: 100;
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(20px);
-      padding: 6px 12px;
-      border-radius: 25px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      max-width: calc(100% - 120px);
-    }
-    .mode-btn {
-      padding: 8px 16px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      border: none;
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-      white-space: nowrap;
-    }
-    .mode-btn:hover { transform: translateY(-2px); }
-    .mode-btn.active { background: linear-gradient(135deg, #ff6b6b, #ff4757); animation: pulse 2s infinite; }
-
-    #designPicker {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 12px;
-      z-index: 100;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(20px);
-      padding: 15px;
-      border-radius: 25px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      max-width: 90vw;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    #designPicker::-webkit-scrollbar { display: none; }
-    .design-btn {
-      width: 60px;
-      height: 90px;
-      border-radius: 16px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      object-fit: contain;
-      background: transparent;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      flex-shrink: 0;
-    }
-    .design-btn:hover { transform: scale(1.1); border-color: rgba(255, 255, 255, 0.6); }
-    .design-btn.selected { transform: scale(1.15); border-color: #ffd700; box-shadow: 0 0 0 3px #ffd700; }
-
-    #loading {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      color: #ff6b6b;
-      font-size: clamp(18px, 4vw, 24px);
-      text-align: center;
-      padding: 20px;
-      gap: 20px;
-    }
-    .loader {
-      width: 60px;
-      height: 60px;
-      border: 4px solid rgba(255, 107, 107, 0.3);
-      border-top: 4px solid #ff6b6b;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    #loading p {
-      color: #fff;
-      font-size: clamp(14px, 3vw, 18px);
-      max-width: 300px;
-      line-height: 1.4;
-    }
-    .indicator {
-      position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(10px);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      display: none;
-      align-items: center;
-      gap: 8px;
-      z-index: 99;
-      font-size: 14px;
-    }
-    #cameraIndicator { top: 20px; }
-    #handIndicator { top: 160px; }
-    .indicator.show { display: flex; animation: slideDown 0.3s ease; }
-
-    #errorRetry {
-      margin-top: 20px;
-      padding: 12px 24px;
-      background: linear-gradient(135deg, #ff6b6b, #ff4757);
-      border: none;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 25px;
-      transition: all 0.3s ease;
-    }
-    #errorRetry:hover { transform: translateY(-2px); }
-
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-    @keyframes slideDown {
-      from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
-      to { opacity: 1; transform: translateX(-50%) translateY(0); }
-    }
-
-    @media (max-width: 768px) {
-      .control-btn { width: 44px; height: 44px; font-size: 17px; }
-      #authorBtn { width: 50px; height: 50px; top: 74px; font-size: 22px; }
-      #modeControls { top: 18px; gap: 8px; padding: 5px 10px; }
-      .mode-btn { padding: 7px 14px; font-size: 12px; }
-      .design-btn { width: 50px; height: 75px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Полювання на сліди Санти! 🎅</title>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image.prod.js"></script>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            overflow: hidden;
+        }
+        
+        .ar-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+        
+        /* Overlay UI */
+        .ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+        
+        /* Name Input Modal */
+        .name-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 1000;
+            pointer-events: all;
+            border: 4px solid #c41e3a;
+        }
+        
+        .name-modal h2 {
+            color: #c41e3a;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .name-input {
+            width: 200px;
+            padding: 12px;
+            font-size: 18px;
+            border: 2px solid #c41e3a;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .start-btn {
+            background: #c41e3a;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .start-btn:hover {
+            background: #a01830;
+            transform: scale(1.05);
+        }
+        
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 3;
+            pointer-events: all;
+        }
+        
+        .control-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin: 5px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        
+        .control-btn:hover {
+            transform: scale(1.1);
+            background: white;
+        }
+        
+        /* Store Button */
+        .store-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #8B0000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 3;
+            text-decoration: none;
+            pointer-events: all;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        /* Message Display */
+        .message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #c41e3a;
+            z-index: 3;
+            text-align: center;
+            border: 3px solid #FFD700;
+            pointer-events: none;
+            display: none;
+        }
+        
+        /* Video Modal */
+        .video-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            z-index: 1001;
+            display: none;
+            pointer-events: all;
+        }
+        
+        .video-modal video {
+            width: 300px;
+            height: 400px;
+            border-radius: 10px;
+        }
+        
+        .close-video {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background: #c41e3a;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        /* Loading Screen */
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 20px;
+            text-align: center;
+            z-index: 1000;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Target Images */
+        .target-preview {
+            width: 100px;
+            height: 100px;
+            border: 3px solid #FFD700;
+            border-radius: 10px;
+            margin: 10px;
+        }
+    </style>
 </head>
 <body>
-  <div id="loading">
-    <div class="loader"></div>
-    <div id="loadingText">Loading Magic Nail Experience...</div>
-    <p>Please allow camera access</p>
-  </div>
+    <!-- Loading Screen -->
+    <div id="loading" class="loading">
+        <p>🔄 Завантаження гри...</p>
+        <p>Зачекайте, будь ласка</p>
+    </div>
 
-  <video id="video" playsinline muted></video>
-  <canvas id="canvas"></canvas>
-  <canvas id="confettiCanvas"></canvas>
+    <!-- AR Scene -->
+    <div class="ar-container">
+        <div id="ar-scene" style="width: 100%; height: 100%;">
+            <!-- MindAR Scene will be loaded here -->
+        </div>
+    </div>
+    
+    <!-- UI Overlay -->
+    <div class="ui-overlay">
+        <!-- Name Input Modal -->
+        <div id="nameModal" class="name-modal">
+            <h2>🎅 Вітаємо у грі! 🎄</h2>
+            <p>Як тебе звати, друже?</p>
+            <input type="text" id="playerName" class="name-input" placeholder="Твоє ім'я" maxlength="20">
+            <br>
+            <button onclick="startGame()" class="start-btn">Почати пригоду!</button>
+            <div style="margin-top: 20px;">
+                <p><strong>Маркери для гри:</strong></p>
+                <div style="display: flex; justify-content: center; flex-wrap: wrap;">
+                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-start.png" class="target-preview" alt="Старт">
+                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-1.png" class="target-preview" alt="Слід 1">
+                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-2.png" class="target-preview" alt="Слід 2">
+                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-3.png" class="target-preview" alt="Слід 3">
+                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-gift.png" class="target-preview" alt="Подарунок">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game Message -->
+        <div id="gameMessage" class="message"></div>
+        
+        <!-- Controls -->
+        <div class="controls">
+            <button id="musicBtn" class="control-btn" onclick="toggleMusic()">🎵</button>
+            <button class="control-btn" onclick="restartGame()">🔄</button>
+        </div>
+        
+        <!-- Store Button -->
+        <a href="https://smartlessa.etsy.com" target="_blank" class="store-btn">
+            🎁 Магазин
+        </a>
+        
+        <!-- Video Modal -->
+        <div id="videoModal" class="video-modal">
+            <button class="close-video" onclick="closeVideo()">×</button>
+            <video id="santaVideo" controls>
+                <source src="https://raw.githubusercontent.com/video-santa/main/video-santa.mp4" type="video/mp4">
+                Ваш браузер не підтримує відео.
+            </video>
+        </div>
+    </div>
+    
+    <!-- Audio Elements -->
+    <audio id="backgroundMusic" loop>
+        <source src="https://raw.githubusercontent.com/video-santa/main/click.mp3" type="audio/mp3">
+    </audio>
 
-  <button id="langBtn" class="control-btn" aria-label="Switch language">UK</button>
-  <button id="soundBtn" class="control-btn" aria-label="Toggle sound">Sound</button>
+    <script>
+        // Game State
+        let playerName = '';
+        let gameStarted = false;
+        let musicPlaying = false;
+        let scene = null;
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        const musicBtn = document.getElementById('musicBtn');
 
-  <a href="https://smartlessa.etsy.com" target="_blank" id="authorBtn" aria-label="Author: smartlessa.etsy.com">
-    Author
-  </a>
-
-  <div id="modeControls">
-    <button class="mode-btn active" id="applyAllBtn" aria-label="Apply to all fingers">All Fingers</button>
-    <button class="mode-btn" id="selectFingerBtn" aria-label="Select finger">Select Finger</button>
-  </div>
-
-  <div id="designPicker"></div>
-
-  <div id="cameraIndicator" class="indicator">
-    <span>Camera</span>
-    <span>Camera Active</span>
-  </div>
-
-  <div id="handIndicator" class="indicator">
-    <span>Hand</span>
-    <span>Show your hand</span>
-  </div>
-
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/"
-      }
-    }
-  </script>
-  <script type="module">
-    import * as THREE from 'three';
-    import { FilesetResolver, HandLandmarker } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/+esm";
-
-    const CONFIG = {
-      SMOOTHING_FACTOR: 0.7,
-      HAND_NOT_DETECTED_THRESHOLD: 10,
-      NAIL_SCALE_FACTORS: { thumb: 0.42, index: 0.52, middle: 0.54, ring: 0.52, pinky: 0.40 },
-      NAIL_ASPECT_RATIOS: { thumb: 0.58, index: 0.65, middle: 0.68, ring: 0.65, pinky: 0.70 },
-      NAIL_OFFSETS: {
-        thumb: { x: -0.01, y: -0.02 },
-        index: { x: 0, y: -0.02 },
-        middle: { x: 0, y: -0.025 },
-        ring: { x: 0, y: -0.02 },
-        pinky: { x: 0.005, y: -0.015 }
-      },
-      MIN_SIZE: 25, MAX_SIZE: 85,
-      WRIST_DISTANCE_REF: 0.1, SCALE_SENSITIVITY: 1.8,
-      MAX_SCALE_FACTOR: 2.0, MIN_SCALE_FACTOR: 0.6
-    };
-
-    const FINGER_INDICES = {
-      thumb: { tip: 4, mcp: 2, pip: 3, ip: 3 },
-      index: { tip: 8, mcp: 5, pip: 6, dip: 7 },
-      middle: { tip: 12, mcp: 9, pip: 10, dip: 11 },
-      ring: { tip: 16, mcp: 13, pip: 14, dip: 15 },
-      pinky: { tip: 20, mcp: 17, pip: 18, dip: 19 }
-    };
-    const FINGER_KEYS = Object.keys(FINGER_INDICES);
-
-    const translations = {
-      en: {
-        title: "Halloween Nail AR Try-On",
-        loading: "Loading Magic Nail Experience...",
-        cameraPrompt: "Please allow camera access",
-        allFingers: "All Fingers",
-        pickFinger: "Select Finger",
-        cameraError: "Camera access denied.<br>Try Chrome or Safari.",
-        arError: "AR failed to load.<br>Refresh page.",
-        retry: "Retry",
-        cameraActive: "Camera Active",
-        handNotDetected: "Show your hand"
-      },
-      uk: {
-        title: "Чарівний манікюр!",
-        loading: "Завантаження чарівного манікюру...",
-        cameraPrompt: "Дозвольте доступ до камери",
-        allFingers: "Усі пальці",
-        pickFinger: "Обрати палець",
-        cameraError: "Немає доступу до камери.<br>Спробуйте Chrome або Safari.",
-        arError: "Помилка AR.<br>Оновіть сторінку.",
-        retry: "Повторити",
-        cameraActive: "Камера активна",
-        handNotDetected: "Покажи руку"
-      }
-    };
-
-    const state = {
-      currentLang: 'en',
-      currentDesign: "1",
-      isApplyAll: true,
-      selectedFingerIndex: -1,
-      isMuted: false,
-      lastLandmarks: null,
-      smoothedLandmarks: null,
-      handNotDetectedCount: 0,
-      animationFrameId: null,
-      palmOrientation: { x: 0, y: 0 },
-      currentHandSize: 1.0,
-      wristDistance: 0,
-      rainbowTime: 0,
-      isAudioUnlocked: false
-    };
-
-    const elements = {
-      video: document.getElementById("video"),
-      canvas: document.getElementById("canvas"),
-      confettiCanvas: document.getElementById("confettiCanvas"),
-      loading: document.getElementById("loading"),
-      loadingText: document.getElementById("loadingText"),
-      langBtn: document.getElementById("langBtn"),
-      soundBtn: document.getElementById("soundBtn"),
-      authorBtn: document.getElementById("authorBtn"),
-      applyAllBtn: document.getElementById("applyAllBtn"),
-      selectFingerBtn: document.getElementById("selectFingerBtn"),
-      designPicker: document.getElementById("designPicker"),
-      cameraIndicator: document.getElementById("cameraIndicator"),
-      handIndicator: document.getElementById("handIndicator")
-    };
-
-    const confettiCtx = elements.confettiCanvas.getContext("2d");
-    let confetti = [];
-
-    function resizeCanvases() {
-      elements.confettiCanvas.width = window.innerWidth;
-      elements.confettiCanvas.height = window.innerHeight;
-    }
-    resizeCanvases();
-    window.addEventListener('resize', resizeCanvases);
-
-    // ЛОКАЛЬНІ АУДІОФАЙЛИ
-    const audio = {
-      bgMusic: new Audio('audio/bg-music.mp3'),
-      click: new Audio('audio/click.mp3')
-    };
-    audio.bgMusic.loop = true;
-    audio.bgMusic.volume = 0.4;
-    audio.click.volume = 0.5;
-
-    const DESIGNS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
-    const nailTextures = {};
-
-    let scene, camera, renderer;
-    const nails = {};
-    let handLandmarker;
-
-    const NAIL_SHADER = {
-      vertexShader: `
-        varying vec2 vUv;
-        varying vec3 vNormal;
-        varying vec3 vViewPosition;
-        void main() {
-          vUv = uv;
-          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-          vViewPosition = -mvPosition.xyz;
-          vNormal = normalize(normalMatrix * normal);
-          gl_Position = projectionMatrix * mvPosition;
+        // Initialize MindAR
+        function initializeAR() {
+            const mindarScene = document.createElement('a-scene');
+            mindarScene.setAttribute('mindar-image', 'imageTargetSrc: https://raw.githubusercontent.com/video-santa/main/targets/targets.mind; autoStart: false; maxTrack: 5;');
+            mindarScene.setAttribute('color-space', 'sRGB');
+            mindarScene.setAttribute('embedded', '');
+            mindarScene.setAttribute('renderer', 'colorManagement: true;');
+            mindarScene.setAttribute('cursor', 'rayOrigin: mouse');
+            
+            // Start Target
+            const startEntity = document.createElement('a-entity');
+            startEntity.setAttribute('mindar-image-target', 'targetIndex: 0');
+            
+            const startBox = document.createElement('a-box');
+            startBox.setAttribute('color', '#c41e3a');
+            startBox.setAttribute('position', '0 0.5 0');
+            startBox.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 4000');
+            
+            const startText = document.createElement('a-text');
+            startText.setAttribute('value', 'Почни гру!');
+            startText.setAttribute('position', '0 1.5 0');
+            startText.setAttribute('align', 'center');
+            startText.setAttribute('color', '#FFD700');
+            
+            startEntity.appendChild(startBox);
+            startEntity.appendChild(startText);
+            mindarScene.appendChild(startEntity);
+            
+            // Target 1 - First Footprint
+            const target1 = document.createElement('a-entity');
+            target1.setAttribute('mindar-image-target', 'targetIndex: 1');
+            
+            const footprint1 = document.createElement('a-image');
+            footprint1.setAttribute('src', 'https://raw.githubusercontent.com/video-santa/main/footprints/1.png');
+            footprint1.setAttribute('width', '1');
+            footprint1.setAttribute('height', '1');
+            footprint1.setAttribute('position', '0 0.5 0');
+            
+            const text1 = document.createElement('a-text');
+            text1.setAttribute('id', 'message-1');
+            text1.setAttribute('value', '');
+            text1.setAttribute('position', '0 1.5 0');
+            text1.setAttribute('align', 'center');
+            text1.setAttribute('color', '#FFD700');
+            
+            target1.appendChild(footprint1);
+            target1.appendChild(text1);
+            mindarScene.appendChild(target1);
+            
+            // Target 2 - Second Footprint
+            const target2 = document.createElement('a-entity');
+            target2.setAttribute('mindar-image-target', 'targetIndex: 2');
+            
+            const footprint2 = document.createElement('a-image');
+            footprint2.setAttribute('src', 'https://raw.githubusercontent.com/video-santa/main/footprints/2.png');
+            footprint2.setAttribute('width', '1');
+            footprint2.setAttribute('height', '1');
+            footprint2.setAttribute('position', '0 0.5 0');
+            
+            const text2 = document.createElement('a-text');
+            text2.setAttribute('id', 'message-2');
+            text2.setAttribute('value', '');
+            text2.setAttribute('position', '0 1.5 0');
+            text2.setAttribute('align', 'center');
+            text2.setAttribute('color', '#FFD700');
+            
+            target2.appendChild(footprint2);
+            target2.appendChild(text2);
+            mindarScene.appendChild(target2);
+            
+            // Target 3 - Third Footprint
+            const target3 = document.createElement('a-entity');
+            target3.setAttribute('mindar-image-target', 'targetIndex: 3');
+            
+            const footprint3 = document.createElement('a-image');
+            footprint3.setAttribute('src', 'https://raw.githubusercontent.com/video-santa/main/footprints/3.png');
+            footprint3.setAttribute('width', '1');
+            footprint3.setAttribute('height', '1');
+            footprint3.setAttribute('position', '0 0.5 0');
+            
+            const text3 = document.createElement('a-text');
+            text3.setAttribute('id', 'message-3');
+            text3.setAttribute('value', '');
+            text3.setAttribute('position', '0 1.5 0');
+            text3.setAttribute('align', 'center');
+            text3.setAttribute('color', '#FFD700');
+            
+            target3.appendChild(footprint3);
+            target3.appendChild(text3);
+            mindarScene.appendChild(target3);
+            
+            // Gift Target - Video
+            const giftTarget = document.createElement('a-entity');
+            giftTarget.setAttribute('mindar-image-target', 'targetIndex: 4');
+            
+            const giftBox = document.createElement('a-box');
+            giftBox.setAttribute('color', '#c41e3a');
+            giftBox.setAttribute('position', '0 0.5 0');
+            giftBox.setAttribute('width', '1');
+            giftBox.setAttribute('height', '1');
+            giftBox.setAttribute('depth', '1');
+            giftBox.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 3000');
+            
+            const giftText = document.createElement('a-text');
+            giftText.setAttribute('value', 'Подарунок!');
+            giftText.setAttribute('position', '0 1.5 0');
+            giftText.setAttribute('align', 'center');
+            giftText.setAttribute('color', '#FFD700');
+            
+            giftTarget.appendChild(giftBox);
+            giftTarget.appendChild(giftText);
+            mindarScene.appendChild(giftTarget);
+            
+            // Camera
+            const camera = document.createElement('a-entity');
+            camera.setAttribute('camera', '');
+            mindarScene.appendChild(camera);
+            
+            document.getElementById('ar-scene').appendChild(mindarScene);
+            scene = mindarScene;
+            
+            // Hide loading screen
+            document.getElementById('loading').classList.add('hidden');
+            
+            // Add event listeners when scene is loaded
+            mindarScene.addEventListener('loaded', function() {
+                setupEventListeners();
+            });
         }
-      `,
-      fragmentShader: `
-        uniform sampler2D map;
-        uniform float time;
-        uniform float shineIntensity;
-        varying vec2 vUv;
-        varying vec3 vNormal;
-        varying vec3 vViewPosition;
 
-        vec3 rainbow(float t) {
-          return vec3(
-            0.5 + 0.5 * sin(t),
-            0.5 + 0.5 * sin(t + 2.0),
-            0.5 + 0.5 * sin(t + 4.0)
-          );
+        // Setup event listeners for targets
+        function setupEventListeners() {
+            const sceneEl = document.querySelector('a-scene');
+            
+            // Target found events
+            sceneEl.addEventListener('targetFound', event => {
+                const targetIndex = event.target.getAttribute('mindar-image-target').targetIndex;
+                
+                if (!gameStarted && targetIndex === 0) {
+                    showMessage('Скануй стартовий маркер для початку гри!');
+                }
+                
+                if (gameStarted) {
+                    switch(targetIndex) {
+                        case 1:
+                            showMessage(`${playerName}, перший слід знайдено! 🎯`);
+                            break;
+                        case 2:
+                            showMessage(`${playerName}, другий слід! Продовжуй! ✨`);
+                            break;
+                        case 3:
+                            showMessage(`${playerName}, останній слід! Йди до подарунка! 🎁`);
+                            break;
+                        case 4:
+                            showSantaVideo();
+                            break;
+                    }
+                }
+            });
         }
 
-        void main() {
-          vec4 texColor = texture2D(map, vUv);
-          if (texColor.a < 0.1) discard;
-
-          vec3 color = texColor.rgb;
-
-          float shine = smoothstep(0.3, 0.7, vUv.y + sin(vUv.y * 8.0 - time * 1.5) * 0.1);
-          shine = pow(shine, 2.0) * 0.5;
-          vec3 highlight = rainbow(time * 3.0) * shine * shineIntensity;
-
-          float fresnel = pow(1.0 - dot(normalize(vViewPosition), vNormal), 3.0);
-          vec3 rim = vec3(1.0, 0.9, 0.8) * fresnel * 0.3;
-
-          float shadow = smoothstep(0.0, 0.25, vUv.y);
-          color *= (1.0 - shadow * 0.25);
-
-          color = color + highlight + rim;
-          gl_FragColor = vec4(color, texColor.a);
-        }
-      `
-    };
-
-    class ConfettiParticle {
-      constructor(x, y) {
-        this.x = x; this.y = y;
-        this.vx = (Math.random() - 0.5) * 8;
-        this.vy = Math.random() * -15 - 5;
-        this.size = Math.random() * 6 + 4;
-        this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
-        this.life = 1.0;
-        this.gravity = 0.4;
-        this.rotation = Math.random() * Math.PI * 2;
-        this.spin = (Math.random() - 0.5) * 0.3;
-      }
-      update() {
-        this.vy += this.gravity;
-        this.x += this.vx;
-        this.y += this.vy;
-        this.life -= 0.015;
-        this.rotation += this.spin;
-      }
-      draw(ctx) {
-        if (this.life <= 0) return;
-        ctx.save();
-        ctx.globalAlpha = this.life;
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.rotation);
-        ctx.fillStyle = this.color;
-        ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
-        ctx.restore();
-      }
-    }
-
-    class NailARApplication {
-      constructor() { this.init(); }
-
-      async init() {
-        try {
-          this.setupEventListeners();
-          await this.setupCamera();
-          await this.initWebGL();
-          await this.setupHandTracking();
-          await this.loadResources();
-          this.setupAudio();
-          this.updateUI();
-          this.hideLoading();
-          this.startRenderLoop();
-          this.unlockAudio();
-        } catch (error) {
-          this.handleError(error);
-        }
-      }
-
-      unlockAudio() {
-        const unlock = () => {
-          if (state.isAudioUnlocked) return;
-          state.isAudioUnlocked = true;
-          if (!state.isMuted) {
-            audio.bgMusic.play().catch(() => {});
-          }
-          document.removeEventListener('click', unlock);
-          document.removeEventListener('touchstart', unlock);
-        };
-        document.addEventListener('click', unlock, { once: true });
-        document.addEventListener('touchstart', unlock, { once: true });
-      }
-
-      setupAudio() {}
-
-      playSound(sound) {
-        if (state.isMuted || !state.isAudioUnlocked) return;
-        try {
-          sound.currentTime = 0;
-          sound.play().catch(() => {});
-        } catch (e) {}
-      }
-
-      toggleSound() {
-        state.isMuted = !state.isMuted;
-        if (state.isMuted) {
-          audio.bgMusic.pause();
-        } else if (state.isAudioUnlocked) {
-          audio.bgMusic.play().catch(() => {});
-        }
-        this.updateSoundButton();
-        this.playSound(audio.click);
-      }
-
-      setupEventListeners() {
-        elements.langBtn.addEventListener('click', () => this.toggleLanguage());
-        elements.soundBtn.addEventListener('click', () => this.toggleSound());
-        elements.applyAllBtn.addEventListener('click', () => this.setApplyAllMode());
-        elements.selectFingerBtn.addEventListener('click', () => this.setSelectFingerMode());
-        elements.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
-        elements.canvas.addEventListener('touchstart', (e) => this.handleCanvasClick(e));
-        window.addEventListener('resize', () => { this.handleResize(); resizeCanvases(); });
-        window.addEventListener('beforeunload', () => this.cleanup());
-      }
-
-      async setupCamera() {
-        try {
-          const constraints = { video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } } };
-          const stream = await navigator.mediaDevices.getUserMedia(constraints);
-          elements.video.srcObject = stream;
-          await new Promise(r => { elements.video.onloadedmetadata = () => { elements.video.play(); r(); }; });
-          this.showCameraIndicator();
-        } catch (error) {
-          console.error('Camera setup failed:', error);
-          throw new Error('CAMERA_ERROR');
-        }
-      }
-
-      async initWebGL() {
-        scene = new THREE.Scene();
-        camera = new THREE.OrthographicCamera(-window.innerWidth / 2, window.innerWidth / 2, window.innerHeight / 2, -window.innerHeight / 2, 0.1, 1000);
-        camera.position.z = 10;
-        renderer = new THREE.WebGLRenderer({ canvas: elements.canvas, alpha: true, antialias: true, powerPreference: "high-performance" });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        this.createNails();
-      }
-
-      createNails() {
-        const shaderMaterial = new THREE.ShaderMaterial({
-          uniforms: { map: { value: null }, time: { value: 0 }, shineIntensity: { value: 1.0 } },
-          vertexShader: NAIL_SHADER.vertexShader,
-          fragmentShader: NAIL_SHADER.fragmentShader,
-          transparent: true,
-          side: THREE.DoubleSide,
-          depthTest: false,
-          depthWrite: false
-        });
-
-        FINGER_KEYS.forEach(key => {
-          const aspect = CONFIG.NAIL_ASPECT_RATIOS[key];
-          const geometry = new THREE.PlaneGeometry(aspect, 1);
-          const material = shaderMaterial.clone();
-          const nail = new THREE.Mesh(geometry, material);
-          nail.visible = false;
-          nail.frustumCulled = false;
-          nail.userData.fingerType = key;
-          nails[key] = nail;
-          scene.add(nail);
-        });
-      }
-
-      async setupHandTracking() {
-        const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
-        handLandmarker = await HandLandmarker.createFromOptions(vision, {
-          baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task", delegate: "GPU" },
-          runningMode: "VIDEO",
-          numHands: 1
-        });
-      }
-
-      async loadResources() {
-        await this.loadDesigns();
-        this.buildDesignUI();
-      }
-
-      async loadDesigns() {
-        const loadImage = (name) => new Promise((resolve) => {
-          const img = new Image();
-          img.src = `nails/halloween/${name}.png`;
-          img.onload = () => {
-            const texture = new THREE.CanvasTexture(img);
-            texture.minFilter = THREE.LinearFilter;
-            texture.magFilter = THREE.LinearFilter;
-            texture.generateMipmaps = false;
-            nailTextures[name] = texture;
-            resolve();
-          };
-          img.onerror = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = 100; canvas.height = 170;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#FF6B6B'; ctx.fillRect(0, 0, 100, 170);
-            ctx.fillStyle = 'white'; ctx.font = '16px Arial'; ctx.textAlign = 'center';
-            ctx.fillText(name, 50, 90);
-            nailTextures[name] = new THREE.CanvasTexture(canvas);
-            resolve();
-          };
-        });
-        await Promise.all(DESIGNS.map(loadImage));
-      }
-
-      buildDesignUI() {
-        elements.designPicker.innerHTML = '';
-        DESIGNS.forEach(name => {
-          const btn = document.createElement('img');
-          btn.src = `nails/halloween/${name}.png`;
-          btn.className = `design-btn ${name === state.currentDesign ? 'selected' : ''}`;
-          btn.alt = `Design ${name}`;
-          btn.loading = 'lazy';
-          btn.addEventListener('click', () => { this.selectDesign(name); });
-          elements.designPicker.appendChild(btn);
-        });
-      }
-
-      startRenderLoop() {
-        const render = () => {
-          this.detectHands();
-          this.renderAR();
-          this.updateConfetti();
-          this.updateRainbowShine();
-
-          const time = performance.now() * 0.001;
-          FINGER_KEYS.forEach(key => {
-            const mat = nails[key].material;
-            if (mat && mat.uniforms) mat.uniforms.time.value = time;
-          });
-
-          state.animationFrameId = requestAnimationFrame(render);
-        };
-        render();
-      }
-
-      updateConfetti() {
-        confetti = confetti.filter(p => p.life > 0);
-        confetti.forEach(p => p.update());
-        confettiCtx.clearRect(0, 0, elements.confettiCanvas.width, elements.confettiCanvas.height);
-        confetti.forEach(p => p.draw(confettiCtx));
-      }
-
-      updateRainbowShine() {
-        state.rainbowTime += 0.02;
-        FINGER_KEYS.forEach(key => {
-          const mat = nails[key].material;
-          if (mat && mat.uniforms) {
-            mat.uniforms.shineIntensity.value = 0.8 + 0.2 * Math.sin(state.rainbowTime);
-          }
-        });
-      }
-
-      detectHands() {
-        if (!handLandmarker || elements.video.readyState < 2) return;
-        try {
-          const predictions = handLandmarker.detectForVideo(elements.video, performance.now());
-          if (predictions.landmarks?.length > 0) {
-            state.handNotDetectedCount = 0;
-            this.hideHandIndicator();
-            const landmarks = predictions.landmarks[0];
-            state.lastLandmarks = this.smoothLandmarks(landmarks);
-            this.updatePalmOrientation(landmarks);
-            this.calculateHandSize(landmarks);
-          } else {
-            state.handNotDetectedCount++;
-            if (state.handNotDetectedCount > CONFIG.HAND_NOT_DETECTED_THRESHOLD) {
-              this.showHandIndicator();
-              this.hideAllNails();
+        // Start Game Function
+        function startGame() {
+            const nameInput = document.getElementById('playerName');
+            playerName = nameInput.value.trim();
+            
+            if (playerName === '') {
+                alert('Будь ласка, введи своє імʼя!');
+                return;
             }
-          }
-        } catch (error) {
-          console.error('Hand detection error:', error);
+            
+            document.getElementById('nameModal').style.display = 'none';
+            gameStarted = true;
+            
+            // Update messages with player name
+            document.getElementById('message-1').setAttribute('value', `${playerName}, шукай сліди Санти!`);
+            document.getElementById('message-2').setAttribute('value', `${playerName}, ти на вірному шляху!`);
+            document.getElementById('message-3').setAttribute('value', `${playerName}, майже там!`);
+            
+            showMessage(`Вітаю, ${playerName}! Шукай маркери зі слідами Санти!`);
+            
+            // Start AR system
+            const arSystem = scene.systems['mindar-image-system'];
+            arSystem.start();
+            
+            // Start background music
+            backgroundMusic.volume = 0.3;
+            backgroundMusic.play().catch(e => console.log('Auto-play prevented:', e));
+            musicPlaying = true;
+            musicBtn.innerHTML = '🔊';
         }
-      }
 
-      calculateHandSize(landmarks) {
-        const wristStart = landmarks[0];
-        const wristEnd = landmarks[1];
-        const wristDistance = Math.hypot(wristStart.x - wristEnd.x, wristStart.y - wristEnd.y);
-        state.wristDistance = wristDistance;
-        let scaleFactor = wristDistance / CONFIG.WRIST_DISTANCE_REF * CONFIG.SCALE_SENSITIVITY;
-        scaleFactor = Math.min(scaleFactor, CONFIG.MAX_SCALE_FACTOR);
-        scaleFactor = Math.max(scaleFactor, CONFIG.MIN_SCALE_FACTOR);
-        state.currentHandSize = scaleFactor;
-      }
-
-      updatePalmOrientation(landmarks) {
-        const wrist = landmarks[0];
-        const middleMCP = landmarks[9];
-        state.palmOrientation = {
-          x: (middleMCP.x - wrist.x) * window.innerWidth,
-          y: (middleMCP.y - wrist.y) * window.innerHeight
-        };
-      }
-
-      smoothLandmarks(newLandmarks) {
-        if (!state.smoothedLandmarks) {
-          state.smoothedLandmarks = newLandmarks.map(lm => ({ ...lm }));
-          return state.smoothedLandmarks;
+        // Show Message
+        function showMessage(text) {
+            const messageEl = document.getElementById('gameMessage');
+            messageEl.textContent = text;
+            messageEl.style.display = 'block';
+            
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 4000);
         }
-        for (let i = 0; i < newLandmarks.length; i++) {
-          state.smoothedLandmarks[i].x = this.lerp(state.smoothedLandmarks[i].x, newLandmarks[i].x, CONFIG.SMOOTHING_FACTOR);
-          state.smoothedLandmarks[i].y = this.lerp(state.smoothedLandmarks[i].y, newLandmarks[i].y, CONFIG.SMOOTHING_FACTOR);
+
+        // Toggle Music
+        function toggleMusic() {
+            if (musicPlaying) {
+                backgroundMusic.pause();
+                musicBtn.innerHTML = '🔇';
+            } else {
+                backgroundMusic.play();
+                musicBtn.innerHTML = '🔊';
+            }
+            musicPlaying = !musicPlaying;
         }
-        return state.smoothedLandmarks;
-      }
 
-      lerp(start, end, factor) { return start * (1 - factor) + end * factor; }
+        // Show Santa Video
+        function showSantaVideo() {
+            const videoModal = document.getElementById('videoModal');
+            const santaVideo = document.getElementById('santaVideo');
+            
+            videoModal.style.display = 'block';
+            santaVideo.play();
+            showMessage(`Вітання від Санти для ${playerName}! 🎅`);
+        }
 
-      renderAR() {
-        if (!state.lastLandmarks) return;
-        FINGER_KEYS.forEach((key, index) => {
-          const nail = nails[key];
-          if (!state.isApplyAll && index !== state.selectedFingerIndex) {
-            nail.visible = false;
-            return;
-          }
-          this.updateNailPosition(key);
-          nail.visible = true;
+        // Close Video
+        function closeVideo() {
+            const videoModal = document.getElementById('videoModal');
+            const santaVideo = document.getElementById('santaVideo');
+            
+            santaVideo.pause();
+            santaVideo.currentTime = 0;
+            videoModal.style.display = 'none';
+        }
+
+        // Restart Game
+        function restartGame() {
+            location.reload();
+        }
+
+        // Handle page visibility changes (for music)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && musicPlaying) {
+                backgroundMusic.pause();
+            } else if (!document.hidden && musicPlaying) {
+                backgroundMusic.play();
+            }
         });
-        renderer.render(scene, camera);
-      }
 
-      updateNailPosition(fingerKey) {
-        const landmarks = state.lastLandmarks;
-        const nail = nails[fingerKey];
-        if (fingerKey === 'thumb') {
-          this.updateThumbNailPosition(fingerKey, landmarks);
-        } else {
-          this.updateFingerNailPosition(fingerKey, landmarks);
-        }
-        if (nailTextures[state.currentDesign]) {
-          nail.material.uniforms.map.value = nailTextures[state.currentDesign];
-          nail.material.needsUpdate = true;
-        }
-      }
-
-      updateThumbNailPosition(fingerKey, landmarks) {
-        const nail = nails[fingerKey];
-        const { tip, mcp, ip } = FINGER_INDICES[fingerKey];
-        const tipLandmark = landmarks[tip];
-        const mcpLandmark = landmarks[mcp];
-        const ipLandmark = landmarks[ip];
-        const thumbDirection = { x: tipLandmark.x - landmarks[0].x, y: tipLandmark.y - landmarks[0].y };
-        const thumbOffset = { x: CONFIG.NAIL_OFFSETS.thumb.x - Math.min(Math.hypot(thumbDirection.x, thumbDirection.y) * 5, 0.02), y: CONFIG.NAIL_OFFSETS.thumb.y };
-        const screenX = (tipLandmark.x + thumbOffset.x) * window.innerWidth;
-        const screenY = (1 - (tipLandmark.y + thumbOffset.y)) * window.innerHeight;
-        const thumbLength = Math.hypot((tipLandmark.x - mcpLandmark.x) * window.innerWidth, (tipLandmark.y - mcpLandmark.y) * window.innerHeight);
-        let nailHeight = thumbLength * CONFIG.NAIL_SCALE_FACTORS.thumb * state.currentHandSize;
-        nailHeight = Math.max(CONFIG.MIN_SIZE, Math.min(CONFIG.MAX_SIZE, nailHeight));
-        const angle = Math.atan2(tipLandmark.y - ipLandmark.y, tipLandmark.x - ipLandmark.x);
-        nail.position.set(screenX - window.innerWidth / 2, screenY - window.innerHeight / 2, 0);
-        const aspect = CONFIG.NAIL_ASPECT_RATIOS[fingerKey];
-        nail.scale.set(nailHeight * aspect, nailHeight, 1);
-        nail.rotation.z = angle;
-      }
-
-      updateFingerNailPosition(fingerKey, landmarks) {
-        const nail = nails[fingerKey];
-        const { tip, pip } = FINGER_INDICES[fingerKey];
-        const tipLandmark = landmarks[tip];
-        const pipLandmark = landmarks[pip];
-        const offset = CONFIG.NAIL_OFFSETS[fingerKey];
-        const screenX = (tipLandmark.x + offset.x) * window.innerWidth;
-        const screenY = (1 - (tipLandmark.y + offset.y)) * window.innerHeight;
-        const fingerLength = Math.hypot((tipLandmark.x - pipLandmark.x) * window.innerWidth, (tipLandmark.y - pipLandmark.y) * window.innerHeight);
-        let nailHeight = fingerLength * CONFIG.NAIL_SCALE_FACTORS[fingerKey] * state.currentHandSize;
-        nailHeight = Math.max(CONFIG.MIN_SIZE, Math.min(CONFIG.MAX_SIZE, nailHeight));
-        const angle = Math.atan2(tipLandmark.y - pipLandmark.y, tipLandmark.x - pipLandmark.x);
-        nail.position.set(screenX - window.innerWidth / 2, screenY - window.innerHeight / 2, 0);
-        const aspect = CONFIG.NAIL_ASPECT_RATIOS[fingerKey];
-        nail.scale.set(nailHeight * aspect, nailHeight, 1);
-        nail.rotation.z = angle;
-      }
-
-      hideAllNails() {
-        FINGER_KEYS.forEach(key => nails[key].visible = false);
-        renderer.render(scene, camera);
-      }
-
-      handleCanvasClick(event) {
-        if (state.isApplyAll || !state.lastLandmarks) return;
-        event.preventDefault();
-        const rect = elements.canvas.getBoundingClientRect();
-        const x = (event.clientX || event.touches[0].clientX) - rect.left;
-        const y = (event.clientY || event.touches[0].clientY) - rect.top;
-        state.selectedFingerIndex = this.getClosestFinger(x, y);
-        this.playSound(audio.click);
-      }
-
-      getClosestFinger(touchX, touchY) {
-        let minDist = Infinity, closestIndex = -1;
-        FINGER_KEYS.forEach((key, index) => {
-          const tipIndex = FINGER_INDICES[key].tip;
-          const landmark = state.lastLandmarks[tipIndex];
-          const x = landmark.x * window.innerWidth;
-          const y = (1 - landmark.y) * window.innerHeight;
-          const dist = Math.hypot(touchX - x, touchY - y);
-          if (dist < minDist && dist < window.innerWidth * 0.1) {
-            minDist = dist;
-            closestIndex = index;
-          }
+        // Initialize the application
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeAR();
         });
-        return closestIndex;
-      }
-
-      toggleLanguage() {
-        state.currentLang = state.currentLang === 'en' ? 'uk' : 'en';
-        this.updateUI();
-        elements.langBtn.textContent = state.currentLang === 'en' ? 'UK' : 'EN';
-        this.playSound(audio.click);
-      }
-
-      setApplyAllMode() {
-        state.isApplyAll = true;
-        state.selectedFingerIndex = -1;
-        elements.applyAllBtn.classList.add('active');
-        elements.selectFingerBtn.classList.remove('active');
-        this.playSound(audio.click);
-      }
-
-      setSelectFingerMode() {
-        state.isApplyAll = false;
-        elements.applyAllBtn.classList.remove('active');
-        elements.selectFingerBtn.classList.add('active');
-        this.playSound(audio.click);
-      }
-
-      selectDesign(name) {
-        state.currentDesign = name;
-        document.querySelectorAll('.design-btn').forEach(btn => {
-          btn.classList.toggle('selected', btn.src.includes(`${name}.png`));
-        });
-        this.playSound(audio.click);
-        this.triggerConfetti();
-      }
-
-      triggerConfetti() {
-        const rect = elements.designPicker.getBoundingClientRect();
-        const x = rect.left + rect.width / 2;
-        const y = rect.top + rect.height / 2;
-        for (let i = 0; i < 50; i++) {
-          confetti.push(new ConfettiParticle(x + (Math.random() - 0.5) * 100, y));
-        }
-      }
-
-      updateUI() {
-        const t = translations[state.currentLang];
-        document.title = t.title;
-        elements.loadingText.textContent = t.loading;
-        document.querySelector('#loading p').textContent = t.cameraPrompt;
-        elements.applyAllBtn.textContent = t.allFingers;
-        elements.selectFingerBtn.textContent = t.pickFinger;
-        elements.handIndicator.innerHTML = `<span>Hand</span><span>${t.handNotDetected}</span>`;
-        elements.cameraIndicator.innerHTML = `<span>Camera</span><span>${t.cameraActive}</span>`;
-        elements.langBtn.textContent = state.currentLang === 'en' ? 'UK' : 'EN';
-        this.updateSoundButton();
-      }
-
-      updateSoundButton() {
-        elements.soundBtn.textContent = state.isMuted ? 'Muted' : 'Sound';
-      }
-
-      showCameraIndicator() {
-        elements.cameraIndicator.classList.add('show');
-        setTimeout(() => elements.cameraIndicator.classList.remove('show'), 3000);
-      }
-
-      showHandIndicator() { elements.handIndicator.classList.add('show'); }
-      hideHandIndicator() { elements.handIndicator.classList.remove('show'); }
-
-      hideLoading() {
-        elements.loading.style.display = 'none';
-        elements.video.style.display = 'block';
-        elements.canvas.style.display = 'block';
-      }
-
-      handleResize() {
-        if (!camera || !renderer) return;
-        camera.left = -window.innerWidth / 2;
-        camera.right = window.innerWidth / 2;
-        camera.top = window.innerHeight / 2;
-        camera.bottom = -window.innerHeight / 2;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      }
-
-      handleError(error) {
-        console.error('App error:', error);
-        const t = translations[state.currentLang];
-        let message = error.message === 'CAMERA_ERROR' ? t.cameraError : t.arError;
-        elements.loading.innerHTML = `
-          <div style="color: #ff4757; font-size: 24px; margin-bottom: 20px;">Error</div>
-          <div style="color: white; font-size: 18px; margin-bottom: 20px; line-height: 1.4;">${message}</div>
-          <button id="errorRetry">${t.retry}</button>
-        `;
-        elements.loading.style.display = 'flex';
-        document.getElementById('errorRetry').addEventListener('click', () => location.reload());
-      }
-
-      cleanup() {
-        if (state.animationFrameId) cancelAnimationFrame(state.animationFrameId);
-        if (elements.video.srcObject) elements.video.srcObject.getTracks().forEach(track => track.stop());
-        if (handLandmarker) handLandmarker.close();
-      }
-    }
-
-    window.addEventListener('DOMContentLoaded', () => new NailARApplication());
-  </script>
+    </script>
 </body>
 </html>
