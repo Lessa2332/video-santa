@@ -220,11 +220,33 @@
         
         /* Target Images */
         .target-preview {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             border: 3px solid #FFD700;
             border-radius: 10px;
-            margin: 10px;
+            margin: 5px;
+            background: rgba(255,255,255,0.8);
+            object-fit: contain;
+            padding: 5px;
+        }
+        
+        .targets-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 400px;
+            margin: 10px auto;
+        }
+        
+        .target-item {
+            text-align: center;
+            margin: 5px;
+        }
+        
+        .target-label {
+            font-size: 12px;
+            margin-top: 2px;
+            color: #333;
         }
     </style>
 </head>
@@ -256,13 +278,31 @@
             <button onclick="startGame()" class="start-btn">Start Adventure!</button>
             <div style="margin-top: 20px;">
                 <p><strong>Game markers:</strong></p>
-                <div style="display: flex; justify-content: center; flex-wrap: wrap;">
-                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-start.png" class="target-preview" alt="Start">
-                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-1.png" class="target-preview" alt="Footprint 1">
-                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-2.png" class="target-preview" alt="Footprint 2">
-                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-3.png" class="target-preview" alt="Footprint 3">
-                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-gift.png" class="target-preview" alt="Gift">
+                <div class="targets-container">
+                    <div class="target-item">
+                        <div class="target-preview">🎯 Start</div>
+                        <div class="target-label">target-start.png</div>
+                    </div>
+                    <div class="target-item">
+                        <div class="target-preview">👣 1</div>
+                        <div class="target-label">target-1.png</div>
+                    </div>
+                    <div class="target-item">
+                        <div class="target-preview">👣 2</div>
+                        <div class="target-label">target-2.png</div>
+                    </div>
+                    <div class="target-item">
+                        <div class="target-preview">👣 3</div>
+                        <div class="target-label">target-3.png</div>
+                    </div>
+                    <div class="target-item">
+                        <div class="target-preview">🎁 Gift</div>
+                        <div class="target-label">target-gift.png</div>
+                    </div>
                 </div>
+                <p style="font-size: 12px; margin-top: 10px; color: #666;">
+                    Print these images to play the game!
+                </p>
             </div>
         </div>
         
@@ -284,7 +324,7 @@
         <div id="videoModal" class="video-modal">
             <button class="close-video" onclick="closeVideo()">×</button>
             <video id="santaVideo" controls>
-                <source src="https://raw.githubusercontent.com/video-santa/main/video-santa.mp4" type="video/mp4">
+                <source src="video-santa.mp4" type="video/mp4">
                 Your browser doesn't support video.
             </video>
         </div>
@@ -292,7 +332,7 @@
     
     <!-- Audio Elements -->
     <audio id="backgroundMusic" loop>
-        <source src="https://raw.githubusercontent.com/video-santa/main/click.mp3" type="audio/mp3">
+        <source src="click.mp3" type="audio/mp3">
     </audio>
 
     <script>
@@ -392,7 +432,7 @@
         // Initialize MindAR
         function initializeAR() {
             const mindarScene = document.createElement('a-scene');
-            mindarScene.setAttribute('mindar-image', 'imageTargetSrc: https://raw.githubusercontent.com/video-santa/main/targets/targets.mind; autoStart: false; maxTrack: 5;');
+            mindarScene.setAttribute('mindar-image', 'imageTargetSrc: targets.mind; autoStart: false; maxTrack: 5;');
             mindarScene.setAttribute('color-space', 'sRGB');
             mindarScene.setAttribute('embedded', '');
             mindarScene.setAttribute('renderer', 'colorManagement: true;');
@@ -422,7 +462,7 @@
             target1.setAttribute('mindar-image-target', 'targetIndex: 1');
             
             const footprint1 = document.createElement('a-image');
-            footprint1.setAttribute('src', 'https://raw.githubusercontent.com/video-santa/main/footprints/1.png');
+            footprint1.setAttribute('src', 'footprints/1.png');
             footprint1.setAttribute('width', '1');
             footprint1.setAttribute('height', '1');
             footprint1.setAttribute('position', '0 0.5 0');
@@ -443,7 +483,7 @@
             target2.setAttribute('mindar-image-target', 'targetIndex: 2');
             
             const footprint2 = document.createElement('a-image');
-            footprint2.setAttribute('src', 'https://raw.githubusercontent.com/video-santa/main/footprints/2.png');
+            footprint2.setAttribute('src', 'footprints/2.png');
             footprint2.setAttribute('width', '1');
             footprint2.setAttribute('height', '1');
             footprint2.setAttribute('position', '0 0.5 0');
@@ -464,7 +504,7 @@
             target3.setAttribute('mindar-image-target', 'targetIndex: 3');
             
             const footprint3 = document.createElement('a-image');
-            footprint3.setAttribute('src', 'https://raw.githubusercontent.com/video-santa/main/footprints/3.png');
+            footprint3.setAttribute('src', 'footprints/3.png');
             footprint3.setAttribute('width', '1');
             footprint3.setAttribute('height', '1');
             footprint3.setAttribute('position', '0 0.5 0');
