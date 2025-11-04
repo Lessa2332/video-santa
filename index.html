@@ -4,20 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Santa's Magical Footprints Hunt! 🎅</title>
-   
-    <!-- FIXED: Правильний порядок підключення бібліотек -->
+  
+    <!-- FIXED: Правильний порядок підключення — MindAR v1.1.4 (UMD, без ESM) -->
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image.prod.js"></script><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Santa's Magical Footprints Hunt! 🎅</title>
-   
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image.prod.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image-aframe.prod.js"></script>
-   
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
+  
     <style>
         * {
             margin: 0;
@@ -25,14 +17,14 @@
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
-       
+      
         html, body {
             width: 100%;
             height: 100%;
             overflow: hidden;
             touch-action: manipulation;
         }
-       
+      
         body {
             font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
@@ -40,7 +32,7 @@
             width: 100%;
             height: 100%;
         }
-       
+      
         .ar-container {
             position: fixed;
             top: 0;
@@ -49,7 +41,7 @@
             height: 100vh;
             z-index: 1;
         }
-       
+      
         /* Overlay UI */
         .ui-overlay {
             position: fixed;
@@ -60,7 +52,7 @@
             pointer-events: none;
             z-index: 2;
         }
-       
+      
         /* Name Input Modal */
         .name-modal {
             position: fixed;
@@ -78,13 +70,13 @@
             width: 90%;
             max-width: 400px;
         }
-       
+      
         .name-modal h2 {
             color: #c41e3a;
             margin-bottom: 20px;
             font-size: 24px;
         }
-       
+      
         .name-input {
             width: 200px;
             padding: 12px;
@@ -94,7 +86,7 @@
             margin-bottom: 15px;
             text-align: center;
         }
-       
+      
         .start-btn {
             background: #c41e3a;
             color: white;
@@ -105,12 +97,12 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-       
+      
         .start-btn:hover {
             background: #a01830;
             transform: scale(1.05);
         }
-       
+      
         /* Controls */
         .controls {
             position: fixed;
@@ -121,7 +113,7 @@
             display: flex;
             gap: 8px;
         }
-       
+      
         .control-btn {
             background: rgba(255, 255, 255, 0.9);
             border: none;
@@ -135,7 +127,7 @@
             align-items: center;
             justify-content: center;
         }
-       
+      
         /* Language Button */
         .language-btn {
             position: fixed;
@@ -151,7 +143,7 @@
             pointer-events: all;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-       
+      
         /* Store Button */
         .store-btn {
             position: fixed;
@@ -169,7 +161,7 @@
             pointer-events: all;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
-       
+      
         /* Message Display */
         .message {
             position: fixed;
@@ -189,7 +181,7 @@
             display: none;
             max-width: 90%;
         }
-       
+      
         /* Video Modal */
         .video-modal {
             position: fixed;
@@ -203,13 +195,13 @@
             display: none;
             pointer-events: all;
         }
-       
+      
         .video-modal video {
             width: 300px;
             height: 400px;
             border-radius: 10px;
         }
-       
+      
         .close-video {
             position: absolute;
             top: -15px;
@@ -223,7 +215,7 @@
             cursor: pointer;
             font-size: 16px;
         }
-       
+      
         /* Loading Screen */
         .loading {
             position: fixed;
@@ -235,11 +227,11 @@
             text-align: center;
             z-index: 1000;
         }
-       
+      
         .hidden {
             display: none;
         }
-       
+      
         /* Error Message */
         .error-message {
             position: fixed;
@@ -254,7 +246,6 @@
             z-index: 1002;
             display: none;
         }
-
         /* Instruction for floor markers */
         .floor-instruction {
             position: fixed;
@@ -278,206 +269,191 @@
         <p>🔄 Loading magical game...</p>
         <p>Please wait</p>
     </div>
-
     <!-- Error Message -->
     <div id="errorMessage" class="error-message">
         <p>🚨 AR system failed to load</p>
         <p>Please check if targets.mind file exists</p>
         <button onclick="location.reload()" style="margin-top: 10px; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer;">Retry</button>
     </div>
-
     <!-- Floor Instruction -->
     <div id="floorInstruction" class="floor-instruction hidden">
         📱 Point camera at the floor markers
     </div>
-
     <!-- AR Scene -->
     <div class="ar-container">
-        <!-- ВИПРАВЛЕНА AR СЦЕНА ДЛЯ МАРКЕРІВ НА ПІДЛОЗІ -->
+        <!-- FIXED: AR сцена для підлоги, smoothing для стабільності, видалено mindar-face-overlay -->
         <a-scene
             id="main-scene"
-            mindar-image="imageTargetSrc: targets.mind; autoStart: false; maxTrack: 5;"
+            mindar-image="imageTargetSrc: targets.mind; autoStart: false; maxTrack: 5; smoothing: true;"
             embedded
             vr-mode-ui="enabled: false"
-            renderer="colorManagement: true; antialias: true;"
-
-            <!-- ВАЖЛИВО: Додаємо компонент для корекції перспективи -->
-            mindar-face-overlay="">
-
-            <!-- КАМЕРА: Налаштована для перегляду вниз на підлогу -->
-            <a-camera 
-                position="0 1.6 0" 
+            renderer="colorManagement: true; antialias: true;">
+            <!-- FIXED: Камера для підлоги — look-controls false для AR-стабільності -->
+            <a-camera
+                position="0 1.6 0"
                 active="false"
-                look-controls="enabled: true"
+                look-controls="enabled: false"
                 wasd-controls="enabled: false"
                 rotation="0 0 0">
             </a-camera>
-
             <!-- Start Target - ВИПРАВЛЕНО ДЛЯ ПІДЛОГИ -->
             <a-entity mindar-image-target="targetIndex: 0">
                 <!-- Текст на підлозі -->
-                <a-text value="START" 
-                       position="0 0.02 0" 
-                       align="center" 
-                       color="#FFD700" 
+                <a-text value="START"
+                       position="0 0.02 0"
+                       align="center"
+                       color="#FFD700"
                        scale="0.8 0.8 0.8"
                        rotation="-90 0 0"
                        animation__scale="property: scale; from: 0.5 0.5 0.5; to: 0.8 0.8 0.8; loop: true; dir: alternate; dur: 2000; easing: easeInOutSine">
                 </a-text>
-                
+               
                 <!-- Частинки, що піднімаються від підлоги -->
-                <a-entity position="0 0.1 0" 
-                         particle-system="preset: dust; color: #FFD700,#FFFFFF; particleCount: 30; 
-                                        velocityValue: 0 0.5 0; velocitySpread: 0.5 0.2 0.5; 
-                                        accelerationValue: 0 0.3 0; startSize: 0.03; endSize: 0.01; 
+                <a-entity position="0 0.1 0"
+                         particle-system="preset: dust; color: #FFD700,#FFFFFF; particleCount: 30;
+                                        velocityValue: 0 0.5 0; velocitySpread: 0.5 0.2 0.5;
+                                        accelerationValue: 0 0.3 0; startSize: 0.03; endSize: 0.01;
                                         duration: 3; loop: true">
                 </a-entity>
-
                 <!-- Підсвічування маркера -->
-                <a-ring color="#FFD700" 
-                       radius-inner="0.3" 
-                       radius-outer="0.5" 
-                       rotation="-90 0 0" 
+                <a-ring color="#FFD700"
+                       radius-inner="0.3"
+                       radius-outer="0.5"
+                       rotation="-90 0 0"
                        opacity="0.3"
                        animation="property: scale; to: 1.2 1.2 1.2; dir: alternate; loop: true; dur: 1500">
                 </a-ring>
             </a-entity>
-
             <!-- Target 1 - First Footprint - ВИПРАВЛЕНО ДЛЯ ПІДЛОГИ -->
             <a-entity mindar-image-target="targetIndex: 1">
                 <!-- Слід лежить на підлозі -->
-                <a-image src="footprints/1.png" 
-                        width="0.6" 
-                        height="0.6" 
+                <a-image src="footprints/1.png"
+                        width="0.6"
+                        height="0.6"
                         position="0 0.01 0"
                         rotation="-90 0 0"
                         scale="0 0 0"
                         animation__scale="property: scale; to: 1 1 1; dur: 1000; startEvents: appear; easing: easeOutElastic">
                 </a-image>
-                
+               
                 <!-- Текст над слідом -->
-                <a-text id="message-1" 
-                       value="" 
-                       position="0 0.15 0" 
-                       align="center" 
+                <a-text id="message-1"
+                       value=""
+                       position="0 0.15 0"
+                       align="center"
                        color="#FFD700"
                        scale="0.6 0.6 0.6"
                        rotation="-90 0 0">
                 </a-text>
-                
+               
                 <!-- Частинки, що виходять з сліду -->
-                <a-entity position="0 0.05 0" 
+                <a-entity position="0 0.05 0"
                          rotation="-90 0 0"
-                         particle-system="preset: dust; color: #FFD700,#FF4500; particleCount: 40; 
-                                        velocityValue: 0 0.3 0; velocitySpread: 0.3 0.1 0.3; 
-                                        accelerationValue: 0 0.2 0; startSize: 0.02; endSize: 0.01; 
+                         particle-system="preset: dust; color: #FFD700,#FF4500; particleCount: 40;
+                                        velocityValue: 0 0.3 0; velocitySpread: 0.3 0.1 0.3;
+                                        accelerationValue: 0 0.2 0; startSize: 0.02; endSize: 0.01;
                                         duration: 2; loop: true; startEvents: appear">
                 </a-entity>
             </a-entity>
-
             <!-- Target 2 - Second Footprint -->
             <a-entity mindar-image-target="targetIndex: 2">
-                <a-image src="footprints/2.png" 
-                        width="0.6" 
-                        height="0.6" 
+                <a-image src="footprints/2.png"
+                        width="0.6"
+                        height="0.6"
                         position="0 0.01 0"
                         rotation="-90 0 0"
                         scale="0 0 0"
                         animation__scale="property: scale; to: 1 1 1; dur: 1000; startEvents: appear; easing: easeOutElastic">
                 </a-image>
-                
-                <a-text id="message-2" 
-                       value="" 
-                       position="0 0.15 0" 
-                       align="center" 
+               
+                <a-text id="message-2"
+                       value=""
+                       position="0 0.15 0"
+                       align="center"
                        color="#FFD700"
                        scale="0.6 0.6 0.6"
                        rotation="-90 0 0">
                 </a-text>
-                
-                <a-entity position="0 0.05 0" 
+               
+                <a-entity position="0 0.05 0"
                          rotation="-90 0 0"
-                         particle-system="preset: dust; color: #00BFFF,#9370DB; particleCount: 45; 
-                                        velocityValue: 0 0.4 0; velocitySpread: 0.4 0.15 0.4; 
-                                        accelerationValue: 0 0.25 0; startSize: 0.025; endSize: 0.01; 
+                         particle-system="preset: dust; color: #00BFFF,#9370DB; particleCount: 45;
+                                        velocityValue: 0 0.4 0; velocitySpread: 0.4 0.15 0.4;
+                                        accelerationValue: 0 0.25 0; startSize: 0.025; endSize: 0.01;
                                         duration: 2.5; loop: true; startEvents: appear">
                 </a-entity>
             </a-entity>
-
             <!-- Target 3 - Third Footprint -->
             <a-entity mindar-image-target="targetIndex: 3">
-                <a-image src="footprints/3.png" 
-                        width="0.6" 
-                        height="0.6" 
+                <a-image src="footprints/3.png"
+                        width="0.6"
+                        height="0.6"
                         position="0 0.01 0"
                         rotation="-90 0 0"
                         scale="0 0 0"
                         animation__scale="property: scale; to: 1 1 1; dur: 1000; startEvents: appear; easing: easeOutElastic">
                 </a-image>
-                
-                <a-text id="message-3" 
-                       value="" 
-                       position="0 0.15 0" 
-                       align="center" 
+               
+                <a-text id="message-3"
+                       value=""
+                       position="0 0.15 0"
+                       align="center"
                        color="#FFD700"
                        scale="0.6 0.6 0.6"
                        rotation="-90 0 0">
                 </a-text>
-                
-                <a-entity position="0 0.05 0" 
+               
+                <a-entity position="0 0.05 0"
                          rotation="-90 0 0"
-                         particle-system="preset: dust; color: #FF1493,#FFD700; particleCount: 50; 
-                                        velocityValue: 0 0.5 0; velocitySpread: 0.5 0.2 0.5; 
-                                        accelerationValue: 0 0.3 0; startSize: 0.03; endSize: 0.01; 
+                         particle-system="preset: dust; color: #FF1493,#FFD700; particleCount: 50;
+                                        velocityValue: 0 0.5 0; velocitySpread: 0.5 0.2 0.5;
+                                        accelerationValue: 0 0.3 0; startSize: 0.03; endSize: 0.01;
                                         duration: 3; loop: true; startEvents: appear">
                 </a-entity>
             </a-entity>
-
             <!-- Gift Target - ВИПРАВЛЕНО ДЛЯ ПІДЛОГИ -->
             <a-entity mindar-image-target="targetIndex: 4">
                 <!-- Подарунок на підлозі -->
-                <a-box color="#c41e3a" 
-                      position="0 0.3 0" 
+                <a-box color="#c41e3a"
+                      position="0 0.3 0"
                       scale="0.4 0.4 0.4"
                       animation__rotation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear"
                       animation__position="property: position; to: 0 0.5 0; dir: alternate; loop: true; dur: 1500">
                 </a-box>
-                
+               
                 <!-- Текст над подарунком -->
-                <a-text value="GIFT!" 
-                       position="0 0.7 0" 
-                       align="center" 
-                       color="#FFD700" 
+                <a-text value="GIFT!"
+                       position="0 0.7 0"
+                       align="center"
+                       color="#FFD700"
                        scale="0.8 0.8 0.8"
                        rotation="-90 0 0">
                 </a-text>
-                
+               
                 <!-- Святкові частинки -->
-                <a-entity position="0 0.4 0" 
-                         particle-system="preset: star; color: #FFD700,#FF69B4,#00FF00; particleCount: 80; 
-                                        velocityValue: 0 0.8 0; velocitySpread: 1 0.3 1; 
-                                        accelerationValue: 0 0.4 0; startSize: 0.04; endSize: 0.01; 
+                <a-entity position="0 0.4 0"
+                         particle-system="preset: star; color: #FFD700,#FF69B4,#00FF00; particleCount: 80;
+                                        velocityValue: 0 0.8 0; velocitySpread: 1 0.3 1;
+                                        accelerationValue: 0 0.4 0; startSize: 0.04; endSize: 0.01;
                                         duration: 4; loop: true">
                 </a-entity>
-
                 <!-- Кільце навколо подарунка -->
-                <a-ring color="#FFD700" 
-                       radius-inner="0.6" 
-                       radius-outer="0.8" 
-                       rotation="-90 0 0" 
+                <a-ring color="#FFD700"
+                       radius-inner="0.6"
+                       radius-outer="0.8"
+                       rotation="-90 0 0"
                        opacity="0.2"
                        animation="property: rotation; to: 0 0 360; loop: true; dur: 4000">
                 </a-ring>
             </a-entity>
-
         </a-scene>
     </div>
-   
+  
     <!-- UI Overlay -->
     <div class="ui-overlay">
         <!-- Language Button -->
         <button id="languageBtn" class="language-btn" onclick="toggleLanguage()">UA</button>
-       
+      
         <!-- Name Input Modal -->
         <div id="nameModal" class="name-modal">
             <h2>🎅 Welcome to Magical Hunt! ✨</h2>
@@ -486,21 +462,21 @@
             <br>
             <button onclick="startGame()" class="start-btn">Start Magic!</button>
         </div>
-       
+      
         <!-- Game Message -->
         <div id="gameMessage" class="message"></div>
-       
+      
         <!-- Controls -->
         <div class="controls">
             <button id="musicBtn" class="control-btn" onclick="toggleMusic()">🎵</button>
             <button class="control-btn" onclick="restartGame()">🔄</button>
         </div>
-       
+      
         <!-- Store Button -->
         <a href="https://smartlessa.etsy.com" target="_blank" class="store-btn">
             🎁 Store
         </a>
-       
+      
         <!-- Video Modal -->
         <div id="videoModal" class="video-modal">
             <button class="close-video" onclick="closeVideo()">×</button>
@@ -510,12 +486,11 @@
             </video>
         </div>
     </div>
-   
+  
     <!-- Audio Elements -->
     <audio id="backgroundMusic" loop>
         <source src="click.mp3" type="audio/mp3">
     </audio>
-
     <script>
         // Game State
         let playerName = '';
@@ -525,7 +500,6 @@
         const backgroundMusic = document.getElementById('backgroundMusic');
         const musicBtn = document.getElementById('musicBtn');
         const languageBtn = document.getElementById('languageBtn');
-
         // Translations
         const translations = {
             en: {
@@ -575,30 +549,27 @@
                 floorInstruction: "📱 Направ камеру на маркери на підлозі"
             }
         };
-
         // Update UI language
         function updateLanguage() {
             const t = translations[currentLanguage];
-           
+          
             document.querySelector('.name-modal h2').textContent = t.welcome;
             document.querySelector('.name-modal p').textContent = t.nameQuestion;
             document.getElementById('playerName').placeholder = t.namePlaceholder;
             document.querySelector('.start-btn').textContent = t.startButton;
-           
+          
             document.querySelector('#loading p:first-child').textContent = t.loading;
             document.querySelector('#loading p:last-child').textContent = t.pleaseWait;
-           
+          
             document.querySelector('.store-btn').textContent = t.store;
             document.getElementById('floorInstruction').textContent = t.floorInstruction;
-           
+          
             languageBtn.textContent = currentLanguage === 'en' ? 'UA' : 'EN';
         }
-
         function toggleLanguage() {
             currentLanguage = currentLanguage === 'en' ? 'ua' : 'en';
             updateLanguage();
         }
-
         // Функція для запуску анімації
         function showMagicalAppearance(targetIndex) {
             const targetEntity = document.querySelector(`a-entity[mindar-image-target="targetIndex: ${targetIndex}"]`);
@@ -616,20 +587,19 @@
                 }
             }
         }
-
         function setupEventListeners() {
             const scene = document.querySelector('a-scene');
-           
+          
             scene.addEventListener('targetFound', event => {
                 const targetIndex = event.target.getAttribute('mindar-image-target').targetIndex;
                 const t = translations[currentLanguage];
-               
+              
                 console.log('Target found:', targetIndex);
-               
+              
                 if (!gameStarted && targetIndex === 0) {
                     showMessage(`${playerName || 'Friend'}, ${t.scanStart}`);
                 }
-               
+              
                 if (gameStarted) {
                     switch(targetIndex) {
                         case 1:
@@ -650,7 +620,6 @@
                     }
                 }
             });
-
             scene.addEventListener('targetLost', event => {
                 const targetIndex = event.target.getAttribute('mindar-image-target').targetIndex;
                 if (targetIndex >= 1 && targetIndex <= 3) {
@@ -664,37 +633,36 @@
                 }
             });
         }
-
         function startGame() {
             const nameInput = document.getElementById('playerName');
             playerName = nameInput.value.trim();
             const t = translations[currentLanguage];
-           
+          
             if (playerName === '') {
                 alert(t.yourName);
                 return;
             }
-           
+          
             document.getElementById('nameModal').style.display = 'none';
             document.getElementById('floorInstruction').classList.remove('hidden');
             gameStarted = true;
-           
+          
             // Оновлюємо повідомлення з іменем гравця
             const messages = [
                 `${playerName}, ${t.searchFootprints}`,
                 `${playerName}, ${t.onRightPath}`,
                 `${playerName}, ${t.almostThere}`
             ];
-           
+          
             for (let i = 1; i <= 3; i++) {
                 const messageElement = document.getElementById(`message-${i}`);
                 if (messageElement) {
                     messageElement.setAttribute('value', messages[i-1]);
                 }
             }
-           
+          
             showMessage(`${playerName}, ${t.welcomeMessage}! ✨`);
-           
+          
             // Запускаємо AR систему
             const scene = document.querySelector('a-scene');
             const arSystem = scene.systems['mindar-image-system'];
@@ -702,7 +670,7 @@
                 arSystem.start();
                 console.log('AR system started');
             }
-           
+          
             // Запускаємо музику
             backgroundMusic.volume = 0.3;
             backgroundMusic.play().catch(e => {
@@ -711,17 +679,15 @@
             musicPlaying = true;
             musicBtn.innerHTML = '🔊';
         }
-
         function showMessage(text) {
             const messageEl = document.getElementById('gameMessage');
             messageEl.textContent = text;
             messageEl.style.display = 'block';
-           
+          
             setTimeout(() => {
                 messageEl.style.display = 'none';
             }, 4000);
         }
-
         function toggleMusic() {
             if (musicPlaying) {
                 backgroundMusic.pause();
@@ -732,48 +698,42 @@
             }
             musicPlaying = !musicPlaying;
         }
-
         function showSantaVideo() {
             const videoModal = document.getElementById('videoModal');
             const santaVideo = document.getElementById('santaVideo');
             const t = translations[currentLanguage];
-           
+          
             videoModal.style.display = 'block';
             santaVideo.play();
             showMessage(`${playerName}, ${t.santaGreeting}! 🎅✨`);
         }
-
         function closeVideo() {
             const videoModal = document.getElementById('videoModal');
             const santaVideo = document.getElementById('santaVideo');
-           
+          
             santaVideo.pause();
             santaVideo.currentTime = 0;
             videoModal.style.display = 'none';
         }
-
         function restartGame() {
             location.reload();
         }
-
         // Ініціалізація
         window.addEventListener('DOMContentLoaded', () => {
             updateLanguage();
-           
+          
             const scene = document.querySelector('a-scene');
             scene.addEventListener('loaded', function() {
                 console.log('Scene loaded successfully');
                 document.getElementById('loading').classList.add('hidden');
                 setupEventListeners();
             });
-
             scene.addEventListener('error', function(e) {
                 console.error('Scene error:', e);
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('errorMessage').style.display = 'block';
             });
         });
-
         document.addEventListener('visibilitychange', function() {
             if (document.hidden && musicPlaying) {
                 backgroundMusic.pause();
