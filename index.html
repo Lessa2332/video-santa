@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Полювання на сліди Санти! 🎅</title>
+    <title>Santa's Footprints Hunt! 🎅</title>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image.prod.js"></script>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image-aframe.prod.js"></script>
@@ -115,6 +115,22 @@
             background: white;
         }
         
+        /* Language Button */
+        .language-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 3;
+            pointer-events: all;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
         /* Store Button */
         .store-btn {
             position: fixed;
@@ -215,8 +231,8 @@
 <body>
     <!-- Loading Screen -->
     <div id="loading" class="loading">
-        <p>🔄 Завантаження гри...</p>
-        <p>Зачекайте, будь ласка</p>
+        <p>🔄 Loading game...</p>
+        <p>Please wait</p>
     </div>
 
     <!-- AR Scene -->
@@ -228,21 +244,24 @@
     
     <!-- UI Overlay -->
     <div class="ui-overlay">
+        <!-- Language Button -->
+        <button id="languageBtn" class="language-btn" onclick="toggleLanguage()">UA</button>
+        
         <!-- Name Input Modal -->
         <div id="nameModal" class="name-modal">
-            <h2>🎅 Вітаємо у грі! 🎄</h2>
-            <p>Як тебе звати, друже?</p>
-            <input type="text" id="playerName" class="name-input" placeholder="Твоє ім'я" maxlength="20">
+            <h2>🎅 Welcome to the game! 🎄</h2>
+            <p>What's your name, friend?</p>
+            <input type="text" id="playerName" class="name-input" placeholder="Your name" maxlength="20">
             <br>
-            <button onclick="startGame()" class="start-btn">Почати пригоду!</button>
+            <button onclick="startGame()" class="start-btn">Start Adventure!</button>
             <div style="margin-top: 20px;">
-                <p><strong>Маркери для гри:</strong></p>
+                <p><strong>Game markers:</strong></p>
                 <div style="display: flex; justify-content: center; flex-wrap: wrap;">
-                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-start.png" class="target-preview" alt="Старт">
-                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-1.png" class="target-preview" alt="Слід 1">
-                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-2.png" class="target-preview" alt="Слід 2">
-                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-3.png" class="target-preview" alt="Слід 3">
-                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-gift.png" class="target-preview" alt="Подарунок">
+                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-start.png" class="target-preview" alt="Start">
+                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-1.png" class="target-preview" alt="Footprint 1">
+                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-2.png" class="target-preview" alt="Footprint 2">
+                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-3.png" class="target-preview" alt="Footprint 3">
+                    <img src="https://raw.githubusercontent.com/video-santa/main/targets/target-gift.png" class="target-preview" alt="Gift">
                 </div>
             </div>
         </div>
@@ -258,7 +277,7 @@
         
         <!-- Store Button -->
         <a href="https://smartlessa.etsy.com" target="_blank" class="store-btn">
-            🎁 Магазин
+            🎁 Store
         </a>
         
         <!-- Video Modal -->
@@ -266,7 +285,7 @@
             <button class="close-video" onclick="closeVideo()">×</button>
             <video id="santaVideo" controls>
                 <source src="https://raw.githubusercontent.com/video-santa/main/video-santa.mp4" type="video/mp4">
-                Ваш браузер не підтримує відео.
+                Your browser doesn't support video.
             </video>
         </div>
     </div>
@@ -282,8 +301,93 @@
         let gameStarted = false;
         let musicPlaying = false;
         let scene = null;
+        let currentLanguage = 'en'; // 'en' or 'ua'
         const backgroundMusic = document.getElementById('backgroundMusic');
         const musicBtn = document.getElementById('musicBtn');
+        const languageBtn = document.getElementById('languageBtn');
+
+        // Translations
+        const translations = {
+            en: {
+                welcome: "🎅 Welcome to the game! 🎄",
+                nameQuestion: "What's your name, friend?",
+                namePlaceholder: "Your name",
+                startButton: "Start Adventure!",
+                markersTitle: "Game markers:",
+                loading: "🔄 Loading game...",
+                pleaseWait: "Please wait",
+                scanStart: "Scan the start marker to begin!",
+                firstFootprint: "first footprint found! 🎯",
+                secondFootprint: "second footprint! Keep going! ✨",
+                thirdFootprint: "last footprint! Go to the gift! 🎁",
+                santaGreeting: "Greeting from Santa for",
+                searchFootprints: "search for Santa's footprints!",
+                onRightPath: "you're on the right path!",
+                almostThere: "almost there!",
+                welcomeMessage: "Welcome",
+                gift: "Gift!",
+                startGame: "Start Game!",
+                store: "🎁 Store",
+                yourName: "What's your name?"
+            },
+            ua: {
+                welcome: "🎅 Вітаємо у грі! 🎄",
+                nameQuestion: "Як тебе звати, друже?",
+                namePlaceholder: "Твоє ім'я",
+                startButton: "Почати пригоду!",
+                markersTitle: "Маркери для гри:",
+                loading: "🔄 Завантаження гри...",
+                pleaseWait: "Зачекайте, будь ласка",
+                scanStart: "Скануй стартовий маркер для початку гри!",
+                firstFootprint: "перший слід знайдено! 🎯",
+                secondFootprint: "другий слід! Продовжуй! ✨",
+                thirdFootprint: "останній слід! Йди до подарунка! 🎁",
+                santaGreeting: "Вітання від Санти для",
+                searchFootprints: "шукай сліди Санти!",
+                onRightPath: "ти на вірному шляху!",
+                almostThere: "майже там!",
+                welcomeMessage: "Вітаю",
+                gift: "Подарунок!",
+                startGame: "Почни гру!",
+                store: "🎁 Магазин",
+                yourName: "Як тебе звати?"
+            }
+        };
+
+        // Update UI language
+        function updateLanguage() {
+            const t = translations[currentLanguage];
+            
+            // Update modal
+            document.querySelector('.name-modal h2').textContent = t.welcome;
+            document.querySelector('.name-modal p').textContent = t.nameQuestion;
+            document.getElementById('playerName').placeholder = t.namePlaceholder;
+            document.querySelector('.start-btn').textContent = t.startButton;
+            document.querySelector('.name-modal strong').textContent = t.markersTitle;
+            
+            // Update loading screen
+            document.querySelector('#loading p:first-child').textContent = t.loading;
+            document.querySelector('#loading p:last-child').textContent = t.pleaseWait;
+            
+            // Update store button
+            document.querySelector('.store-btn').textContent = t.store;
+            
+            // Update language button
+            languageBtn.textContent = currentLanguage === 'en' ? 'UA' : 'EN';
+            
+            // Update AR text if game has started
+            if (gameStarted && playerName) {
+                document.getElementById('message-1').setAttribute('value', `${playerName}, ${t.searchFootprints}`);
+                document.getElementById('message-2').setAttribute('value', `${playerName}, ${t.onRightPath}`);
+                document.getElementById('message-3').setAttribute('value', `${playerName}, ${t.almostThere}`);
+            }
+        }
+
+        // Toggle language
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'en' ? 'ua' : 'en';
+            updateLanguage();
+        }
 
         // Initialize MindAR
         function initializeAR() {
@@ -304,7 +408,7 @@
             startBox.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 4000');
             
             const startText = document.createElement('a-text');
-            startText.setAttribute('value', 'Почни гру!');
+            startText.setAttribute('value', translations[currentLanguage].startGame);
             startText.setAttribute('position', '0 1.5 0');
             startText.setAttribute('align', 'center');
             startText.setAttribute('color', '#FFD700');
@@ -389,7 +493,7 @@
             giftBox.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 3000');
             
             const giftText = document.createElement('a-text');
-            giftText.setAttribute('value', 'Подарунок!');
+            giftText.setAttribute('value', translations[currentLanguage].gift);
             giftText.setAttribute('position', '0 1.5 0');
             giftText.setAttribute('align', 'center');
             giftText.setAttribute('color', '#FFD700');
@@ -422,21 +526,22 @@
             // Target found events
             sceneEl.addEventListener('targetFound', event => {
                 const targetIndex = event.target.getAttribute('mindar-image-target').targetIndex;
+                const t = translations[currentLanguage];
                 
                 if (!gameStarted && targetIndex === 0) {
-                    showMessage('Скануй стартовий маркер для початку гри!');
+                    showMessage(t.scanStart);
                 }
                 
                 if (gameStarted) {
                     switch(targetIndex) {
                         case 1:
-                            showMessage(`${playerName}, перший слід знайдено! 🎯`);
+                            showMessage(`${playerName}, ${t.firstFootprint}`);
                             break;
                         case 2:
-                            showMessage(`${playerName}, другий слід! Продовжуй! ✨`);
+                            showMessage(`${playerName}, ${t.secondFootprint}`);
                             break;
                         case 3:
-                            showMessage(`${playerName}, останній слід! Йди до подарунка! 🎁`);
+                            showMessage(`${playerName}, ${t.thirdFootprint}`);
                             break;
                         case 4:
                             showSantaVideo();
@@ -450,9 +555,10 @@
         function startGame() {
             const nameInput = document.getElementById('playerName');
             playerName = nameInput.value.trim();
+            const t = translations[currentLanguage];
             
             if (playerName === '') {
-                alert('Будь ласка, введи своє імʼя!');
+                alert(t.yourName);
                 return;
             }
             
@@ -460,11 +566,11 @@
             gameStarted = true;
             
             // Update messages with player name
-            document.getElementById('message-1').setAttribute('value', `${playerName}, шукай сліди Санти!`);
-            document.getElementById('message-2').setAttribute('value', `${playerName}, ти на вірному шляху!`);
-            document.getElementById('message-3').setAttribute('value', `${playerName}, майже там!`);
+            document.getElementById('message-1').setAttribute('value', `${playerName}, ${t.searchFootprints}`);
+            document.getElementById('message-2').setAttribute('value', `${playerName}, ${t.onRightPath}`);
+            document.getElementById('message-3').setAttribute('value', `${playerName}, ${t.almostThere}`);
             
-            showMessage(`Вітаю, ${playerName}! Шукай маркери зі слідами Санти!`);
+            showMessage(`${t.welcomeMessage} ${playerName}! ${t.searchFootprints}`);
             
             // Start AR system
             const arSystem = scene.systems['mindar-image-system'];
@@ -504,10 +610,11 @@
         function showSantaVideo() {
             const videoModal = document.getElementById('videoModal');
             const santaVideo = document.getElementById('santaVideo');
+            const t = translations[currentLanguage];
             
             videoModal.style.display = 'block';
             santaVideo.play();
-            showMessage(`Вітання від Санти для ${playerName}! 🎅`);
+            showMessage(`${t.santaGreeting} ${playerName}! 🎅`);
         }
 
         // Close Video
@@ -537,6 +644,7 @@
         // Initialize the application
         window.addEventListener('DOMContentLoaded', () => {
             initializeAR();
+            updateLanguage(); // Set initial language
         });
     </script>
 </body>
