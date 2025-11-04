@@ -7,6 +7,14 @@
    
     <!-- FIXED: Правильний порядок підключення бібліотек -->
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image.prod.js"></script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Santa's Magical Footprints Hunt! 🎅</title>
+   
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image.prod.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image-aframe.prod.js"></script>
    
@@ -53,7 +61,7 @@
             z-index: 2;
         }
        
-        /* Name Input Modal - СПРОЩЕНА ВЕРСІЯ */
+        /* Name Input Modal */
         .name-modal {
             position: fixed;
             top: 50%;
@@ -246,6 +254,22 @@
             z-index: 1002;
             display: none;
         }
+
+        /* Instruction for floor markers */
+        .floor-instruction {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: center;
+            z-index: 3;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -254,84 +278,198 @@
         <p>🔄 Loading magical game...</p>
         <p>Please wait</p>
     </div>
+
     <!-- Error Message -->
     <div id="errorMessage" class="error-message">
         <p>🚨 AR system failed to load</p>
         <p>Please check if targets.mind file exists</p>
         <button onclick="location.reload()" style="margin-top: 10px; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer;">Retry</button>
     </div>
+
+    <!-- Floor Instruction -->
+    <div id="floorInstruction" class="floor-instruction hidden">
+        📱 Point camera at the floor markers
+    </div>
+
     <!-- AR Scene -->
     <div class="ar-container">
-        <!-- FIXED: Спрощена AR сцена з частинками та оновленим Start -->
+        <!-- ВИПРАВЛЕНА AR СЦЕНА ДЛЯ МАРКЕРІВ НА ПІДЛОЗІ -->
         <a-scene
             id="main-scene"
             mindar-image="imageTargetSrc: targets.mind; autoStart: false; maxTrack: 5;"
             embedded
             vr-mode-ui="enabled: false"
-            renderer="colorManagement: true; antialias: true;">
-            <a-camera position="0 0 0" active="false"></a-camera>
-            <!-- Start Target - ОНОВЛЕНО: Текст "Start" з анімацією та частинками -->
+            renderer="colorManagement: true; antialias: true;"
+
+            <!-- ВАЖЛИВО: Додаємо компонент для корекції перспективи -->
+            mindar-face-overlay="">
+
+            <!-- КАМЕРА: Налаштована для перегляду вниз на підлогу -->
+            <a-camera 
+                position="0 1.6 0" 
+                active="false"
+                look-controls="enabled: true"
+                wasd-controls="enabled: false"
+                rotation="0 0 0">
+            </a-camera>
+
+            <!-- Start Target - ВИПРАВЛЕНО ДЛЯ ПІДЛОГИ -->
             <a-entity mindar-image-target="targetIndex: 0">
-                <a-text value="Start" position="0 0.5 0" align="center" color="#FFD700" scale="1.5 1.5 1.5"
-                      animation__scale="property: scale; from: 0.5 0.5 0.5; to: 1.5 1.5 1.5; loop: true; dir: alternate; dur: 2000; easing: easeInOutSine"
-                      animation__rotation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear">
+                <!-- Текст на підлозі -->
+                <a-text value="START" 
+                       position="0 0.02 0" 
+                       align="center" 
+                       color="#FFD700" 
+                       scale="0.8 0.8 0.8"
+                       rotation="-90 0 0"
+                       animation__scale="property: scale; from: 0.5 0.5 0.5; to: 0.8 0.8 0.8; loop: true; dir: alternate; dur: 2000; easing: easeInOutSine">
                 </a-text>
-                <!-- Частинки для Start: сніжинки/зірочки -->
-                <a-entity position="0 0.5 0" 
-                          particle-system="preset: snow; color: #FFD700,#FFFFFF; particleCount: 50; velocityValue: 0 -1 0; velocitySpread: 0 0 0; accelerationValue: 0 -0.5 0; startSize: 0.05; endSize: 0.01; duration: 5; loop: true">
+                
+                <!-- Частинки, що піднімаються від підлоги -->
+                <a-entity position="0 0.1 0" 
+                         particle-system="preset: dust; color: #FFD700,#FFFFFF; particleCount: 30; 
+                                        velocityValue: 0 0.5 0; velocitySpread: 0.5 0.2 0.5; 
+                                        accelerationValue: 0 0.3 0; startSize: 0.03; endSize: 0.01; 
+                                        duration: 3; loop: true">
                 </a-entity>
+
+                <!-- Підсвічування маркера -->
+                <a-ring color="#FFD700" 
+                       radius-inner="0.3" 
+                       radius-outer="0.5" 
+                       rotation="-90 0 0" 
+                       opacity="0.3"
+                       animation="property: scale; to: 1.2 1.2 1.2; dir: alternate; loop: true; dur: 1500">
+                </a-ring>
             </a-entity>
-            <!-- Target 1 - First Footprint - ДОДАНО: Частинки та додаткові анімації -->
+
+            <!-- Target 1 - First Footprint - ВИПРАВЛЕНО ДЛЯ ПІДЛОГИ -->
             <a-entity mindar-image-target="targetIndex: 1">
-                <a-image src="footprints/1.png" width="0.8" height="0.8" position="0 0.3 0"
+                <!-- Слід лежить на підлозі -->
+                <a-image src="footprints/1.png" 
+                        width="0.6" 
+                        height="0.6" 
+                        position="0 0.01 0"
+                        rotation="-90 0 0"
                         scale="0 0 0"
-                        animation__scale="property: scale; to: 1 1 1; dur: 1000; startEvents: appear; easing: easeOutElastic"
-                        animation__rotation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear">
+                        animation__scale="property: scale; to: 1 1 1; dur: 1000; startEvents: appear; easing: easeOutElastic">
                 </a-image>
-                <a-text id="message-1" value="" position="0 1.2 0" align="center" color="#FFD700"></a-text>
-                <!-- Частинки: магічні іскри -->
-                <a-entity position="0 0.3 0" 
-                          particle-system="preset: dust; color: #FFD700,#FF4500; particleCount: 100; velocityValue: 0 0.5 0; velocitySpread: 1 0.5 1; accelerationValue: 0 -0.2 0; startSize: 0.02; endSize: 0.01; duration: 3; loop: true; startEvents: appear">
+                
+                <!-- Текст над слідом -->
+                <a-text id="message-1" 
+                       value="" 
+                       position="0 0.15 0" 
+                       align="center" 
+                       color="#FFD700"
+                       scale="0.6 0.6 0.6"
+                       rotation="-90 0 0">
+                </a-text>
+                
+                <!-- Частинки, що виходять з сліду -->
+                <a-entity position="0 0.05 0" 
+                         rotation="-90 0 0"
+                         particle-system="preset: dust; color: #FFD700,#FF4500; particleCount: 40; 
+                                        velocityValue: 0 0.3 0; velocitySpread: 0.3 0.1 0.3; 
+                                        accelerationValue: 0 0.2 0; startSize: 0.02; endSize: 0.01; 
+                                        duration: 2; loop: true; startEvents: appear">
                 </a-entity>
             </a-entity>
-            <!-- Target 2 - Second Footprint - ДОДАНО: Частинки та додаткові анімації -->
+
+            <!-- Target 2 - Second Footprint -->
             <a-entity mindar-image-target="targetIndex: 2">
-                <a-image src="footprints/2.png" width="0.8" height="0.8" position="0 0.3 0"
+                <a-image src="footprints/2.png" 
+                        width="0.6" 
+                        height="0.6" 
+                        position="0 0.01 0"
+                        rotation="-90 0 0"
                         scale="0 0 0"
-                        animation__scale="property: scale; to: 1 1 1; dur: 1000; startEvents: appear; easing: easeOutElastic"
-                        animation__rotation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear">
+                        animation__scale="property: scale; to: 1 1 1; dur: 1000; startEvents: appear; easing: easeOutElastic">
                 </a-image>
-                <a-text id="message-2" value="" position="0 1.2 0" align="center" color="#FFD700"></a-text>
-                <!-- Частинки: магічні іскри -->
-                <a-entity position="0 0.3 0" 
-                          particle-system="preset: dust; color: #FFD700,#FF4500; particleCount: 100; velocityValue: 0 0.5 0; velocitySpread: 1 0.5 1; accelerationValue: 0 -0.2 0; startSize: 0.02; endSize: 0.01; duration: 3; loop: true; startEvents: appear">
+                
+                <a-text id="message-2" 
+                       value="" 
+                       position="0 0.15 0" 
+                       align="center" 
+                       color="#FFD700"
+                       scale="0.6 0.6 0.6"
+                       rotation="-90 0 0">
+                </a-text>
+                
+                <a-entity position="0 0.05 0" 
+                         rotation="-90 0 0"
+                         particle-system="preset: dust; color: #00BFFF,#9370DB; particleCount: 45; 
+                                        velocityValue: 0 0.4 0; velocitySpread: 0.4 0.15 0.4; 
+                                        accelerationValue: 0 0.25 0; startSize: 0.025; endSize: 0.01; 
+                                        duration: 2.5; loop: true; startEvents: appear">
                 </a-entity>
             </a-entity>
-            <!-- Target 3 - Third Footprint - ДОДАНО: Частинки та додаткові анімації -->
+
+            <!-- Target 3 - Third Footprint -->
             <a-entity mindar-image-target="targetIndex: 3">
-                <a-image src="footprints/3.png" width="0.8" height="0.8" position="0 0.3 0"
+                <a-image src="footprints/3.png" 
+                        width="0.6" 
+                        height="0.6" 
+                        position="0 0.01 0"
+                        rotation="-90 0 0"
                         scale="0 0 0"
-                        animation__scale="property: scale; to: 1 1 1; dur: 1000; startEvents: appear; easing: easeOutElastic"
-                        animation__rotation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear">
+                        animation__scale="property: scale; to: 1 1 1; dur: 1000; startEvents: appear; easing: easeOutElastic">
                 </a-image>
-                <a-text id="message-3" value="" position="0 1.2 0" align="center" color="#FFD700"></a-text>
-                <!-- Частинки: магічні іскри -->
-                <a-entity position="0 0.3 0" 
-                          particle-system="preset: dust; color: #FFD700,#FF4500; particleCount: 100; velocityValue: 0 0.5 0; velocitySpread: 1 0.5 1; accelerationValue: 0 -0.2 0; startSize: 0.02; endSize: 0.01; duration: 3; loop: true; startEvents: appear">
+                
+                <a-text id="message-3" 
+                       value="" 
+                       position="0 0.15 0" 
+                       align="center" 
+                       color="#FFD700"
+                       scale="0.6 0.6 0.6"
+                       rotation="-90 0 0">
+                </a-text>
+                
+                <a-entity position="0 0.05 0" 
+                         rotation="-90 0 0"
+                         particle-system="preset: dust; color: #FF1493,#FFD700; particleCount: 50; 
+                                        velocityValue: 0 0.5 0; velocitySpread: 0.5 0.2 0.5; 
+                                        accelerationValue: 0 0.3 0; startSize: 0.03; endSize: 0.01; 
+                                        duration: 3; loop: true; startEvents: appear">
                 </a-entity>
             </a-entity>
-            <!-- Gift Target - ДОДАНО: Частинки та обертання -->
+
+            <!-- Gift Target - ВИПРАВЛЕНО ДЛЯ ПІДЛОГИ -->
             <a-entity mindar-image-target="targetIndex: 4">
-                <a-box color="#c41e3a" position="0 0.5 0" scale="0.6 0.6 0.6"
+                <!-- Подарунок на підлозі -->
+                <a-box color="#c41e3a" 
+                      position="0 0.3 0" 
+                      scale="0.4 0.4 0.4"
                       animation__rotation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear"
-                      animation__scale="property: scale; from: 0.3 0.3 0.3; to: 0.6 0.6 0.6; loop: true; dir: alternate; dur: 2000">
+                      animation__position="property: position; to: 0 0.5 0; dir: alternate; loop: true; dur: 1500">
                 </a-box>
-                <a-text value="Gift!" position="0 1.2 0" align="center" color="#FFD700"></a-text>
-                <!-- Частинки: святкові конфеті -->
-                <a-entity position="0 0.5 0" 
-                          particle-system="preset: dust; color: #FFD700,#FF69B4,#00FF00; particleCount: 150; velocityValue: 0 1 0; velocitySpread: 2 1 2; accelerationValue: 0 -0.3 0; startSize: 0.03; endSize: 0.01; duration: 4; loop: true">
+                
+                <!-- Текст над подарунком -->
+                <a-text value="GIFT!" 
+                       position="0 0.7 0" 
+                       align="center" 
+                       color="#FFD700" 
+                       scale="0.8 0.8 0.8"
+                       rotation="-90 0 0">
+                </a-text>
+                
+                <!-- Святкові частинки -->
+                <a-entity position="0 0.4 0" 
+                         particle-system="preset: star; color: #FFD700,#FF69B4,#00FF00; particleCount: 80; 
+                                        velocityValue: 0 0.8 0; velocitySpread: 1 0.3 1; 
+                                        accelerationValue: 0 0.4 0; startSize: 0.04; endSize: 0.01; 
+                                        duration: 4; loop: true">
                 </a-entity>
+
+                <!-- Кільце навколо подарунка -->
+                <a-ring color="#FFD700" 
+                       radius-inner="0.6" 
+                       radius-outer="0.8" 
+                       rotation="-90 0 0" 
+                       opacity="0.2"
+                       animation="property: rotation; to: 0 0 360; loop: true; dur: 4000">
+                </a-ring>
             </a-entity>
+
         </a-scene>
     </div>
    
@@ -340,14 +478,13 @@
         <!-- Language Button -->
         <button id="languageBtn" class="language-btn" onclick="toggleLanguage()">UA</button>
        
-        <!-- Name Input Modal - СПРОЩЕНА ВЕРСІЯ -->
+        <!-- Name Input Modal -->
         <div id="nameModal" class="name-modal">
             <h2>🎅 Welcome to Magical Hunt! ✨</h2>
             <p>What's your name, friend?</p>
             <input type="text" id="playerName" class="name-input" placeholder="Your name" maxlength="20">
             <br>
             <button onclick="startGame()" class="start-btn">Start Magic!</button>
-            <!-- ВИДАЛЕНО: Показ маркерів для таємничості -->
         </div>
        
         <!-- Game Message -->
@@ -378,6 +515,7 @@
     <audio id="backgroundMusic" loop>
         <source src="click.mp3" type="audio/mp3">
     </audio>
+
     <script>
         // Game State
         let playerName = '';
@@ -387,7 +525,8 @@
         const backgroundMusic = document.getElementById('backgroundMusic');
         const musicBtn = document.getElementById('musicBtn');
         const languageBtn = document.getElementById('languageBtn');
-        // Translations - ОНОВЛЕНО: Тексти для персоналізації з "шукай далі!"
+
+        // Translations
         const translations = {
             en: {
                 welcome: "🎅 Welcome to Magical Hunt! ✨",
@@ -396,20 +535,21 @@
                 startButton: "Start Magic!",
                 loading: "🔄 Loading magical game...",
                 pleaseWait: "Please wait",
-                scanStart: "Scan the start marker to begin the hunt!",
-                firstFootprint: "great job on the first magical footprint! ✨",
-                secondFootprint: "amazing, second footprint! The magic grows! 🌟",
-                thirdFootprint: "wow, last footprint! Santa is near! 🎁",
+                scanStart: "Scan the START marker on the floor to begin!",
+                firstFootprint: "found the first footprint! ✨ Search for the next one!",
+                secondFootprint: "found the second footprint! 🌟 Keep searching!",
+                thirdFootprint: "found the last footprint! 🎁 The gift is near!",
                 santaGreeting: "Magical greeting from Santa for",
-                searchFootprints: "search for magical footprints!",
-                onRightPath: "you're on the right magical path!",
-                almostThere: "the magic is strong! Almost there!",
-                welcomeMessage: "Welcome to the magic",
+                searchFootprints: "search for Santa's footprints on the floor!",
+                onRightPath: "you're on the right path! Search further!",
+                almostThere: "almost there! One more step!",
+                welcomeMessage: "Let the magic begin",
                 gift: "Gift!",
-                startGame: "Start Magic!",
+                startGame: "START",
                 store: "🎁 Store",
                 yourName: "What's your name?",
-                keepSearching: "keep searching!"
+                keepSearching: "keep searching!",
+                floorInstruction: "📱 Point camera at the floor markers"
             },
             ua: {
                 welcome: "🎅 Вітаємо у Чарівному Полюванні! ✨",
@@ -418,22 +558,24 @@
                 startButton: "Почати Магію!",
                 loading: "🔄 Завантаження чарівної гри...",
                 pleaseWait: "Зачекайте, будь ласка",
-                scanStart: "Скануй стартовий маркер для початку полювання!",
-                firstFootprint: "чудово, перший чарівний слід знайдено! ✨",
-                secondFootprint: "класно, другий слід! Магія зростає! 🌟",
-                thirdFootprint: "вау, останній слід! Санта вже близько! 🎁",
+                scanStart: "Скануй маркер START на підлозі для початку!",
+                firstFootprint: "знайшов перший слід! ✨ Шукай далі!",
+                secondFootprint: "знайшов другий слід! 🌟 Продовжуй пошук!",
+                thirdFootprint: "знайшов останній слід! 🎁 Подарунок вже близько!",
                 santaGreeting: "Чарівне вітання від Санти для",
-                searchFootprints: "шукай чарівні сліди!",
-                onRightPath: "ти на вірному чарівному шляху!",
-                almostThere: "магія сильна! Майже там!",
-                welcomeMessage: "Вітаємо у світі магії",
+                searchFootprints: "шукай сліди Санти на підлозі!",
+                onRightPath: "ти на вірному шляху! Шукай далі!",
+                almostThere: "майже там! Ще один крок!",
+                welcomeMessage: "Нехай магія почнеться",
                 gift: "Подарунок!",
-                startGame: "Почати Магію!",
+                startGame: "СТАРТ",
                 store: "🎁 Магазин",
                 yourName: "Як тебе звати?",
-                keepSearching: "шукай далі!"
+                keepSearching: "шукай далі!",
+                floorInstruction: "📱 Направ камеру на маркери на підлозі"
             }
         };
+
         // Update UI language
         function updateLanguage() {
             const t = translations[currentLanguage];
@@ -447,32 +589,34 @@
             document.querySelector('#loading p:last-child').textContent = t.pleaseWait;
            
             document.querySelector('.store-btn').textContent = t.store;
+            document.getElementById('floorInstruction').textContent = t.floorInstruction;
            
             languageBtn.textContent = currentLanguage === 'en' ? 'UA' : 'EN';
         }
+
         function toggleLanguage() {
             currentLanguage = currentLanguage === 'en' ? 'ua' : 'en';
             updateLanguage();
         }
-        // FIXED: Виправлена функція для запуску анімації
+
+        // Функція для запуску анімації
         function showMagicalAppearance(targetIndex) {
             const targetEntity = document.querySelector(`a-entity[mindar-image-target="targetIndex: ${targetIndex}"]`);
             if (targetEntity) {
                 const image = targetEntity.querySelector('a-image');
                 if (image) {
-                    // Скидаємо анімацію і запускаємо знову
                     image.setAttribute('scale', '0 0 0');
                     setTimeout(() => {
                         image.emit('appear');
                     }, 50);
                 }
-                // Запускаємо частинки
                 const particles = targetEntity.querySelector('[particle-system]');
                 if (particles) {
                     particles.emit('appear');
                 }
             }
         }
+
         function setupEventListeners() {
             const scene = document.querySelector('a-scene');
            
@@ -480,7 +624,7 @@
                 const targetIndex = event.target.getAttribute('mindar-image-target').targetIndex;
                 const t = translations[currentLanguage];
                
-                console.log('Target found:', targetIndex); // ДЕБАГ
+                console.log('Target found:', targetIndex);
                
                 if (!gameStarted && targetIndex === 0) {
                     showMessage(`${playerName || 'Friend'}, ${t.scanStart}`);
@@ -506,7 +650,7 @@
                     }
                 }
             });
-            // FIXED: Скидання анімації при втраті маркера
+
             scene.addEventListener('targetLost', event => {
                 const targetIndex = event.target.getAttribute('mindar-image-target').targetIndex;
                 if (targetIndex >= 1 && targetIndex <= 3) {
@@ -520,6 +664,7 @@
                 }
             });
         }
+
         function startGame() {
             const nameInput = document.getElementById('playerName');
             playerName = nameInput.value.trim();
@@ -531,6 +676,7 @@
             }
            
             document.getElementById('nameModal').style.display = 'none';
+            document.getElementById('floorInstruction').classList.remove('hidden');
             gameStarted = true;
            
             // Оновлюємо повідомлення з іменем гравця
@@ -554,7 +700,7 @@
             const arSystem = scene.systems['mindar-image-system'];
             if (arSystem) {
                 arSystem.start();
-                console.log('AR system started'); // ДЕБАГ
+                console.log('AR system started');
             }
            
             // Запускаємо музику
@@ -565,6 +711,7 @@
             musicPlaying = true;
             musicBtn.innerHTML = '🔊';
         }
+
         function showMessage(text) {
             const messageEl = document.getElementById('gameMessage');
             messageEl.textContent = text;
@@ -574,6 +721,7 @@
                 messageEl.style.display = 'none';
             }, 4000);
         }
+
         function toggleMusic() {
             if (musicPlaying) {
                 backgroundMusic.pause();
@@ -584,6 +732,7 @@
             }
             musicPlaying = !musicPlaying;
         }
+
         function showSantaVideo() {
             const videoModal = document.getElementById('videoModal');
             const santaVideo = document.getElementById('santaVideo');
@@ -593,6 +742,7 @@
             santaVideo.play();
             showMessage(`${playerName}, ${t.santaGreeting}! 🎅✨`);
         }
+
         function closeVideo() {
             const videoModal = document.getElementById('videoModal');
             const santaVideo = document.getElementById('santaVideo');
@@ -601,10 +751,12 @@
             santaVideo.currentTime = 0;
             videoModal.style.display = 'none';
         }
+
         function restartGame() {
             location.reload();
         }
-        // FIXED: Правильна ініціалізація
+
+        // Ініціалізація
         window.addEventListener('DOMContentLoaded', () => {
             updateLanguage();
            
@@ -614,12 +766,14 @@
                 document.getElementById('loading').classList.add('hidden');
                 setupEventListeners();
             });
+
             scene.addEventListener('error', function(e) {
                 console.error('Scene error:', e);
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('errorMessage').style.display = 'block';
             });
         });
+
         document.addEventListener('visibilitychange', function() {
             if (document.hidden && musicPlaying) {
                 backgroundMusic.pause();
