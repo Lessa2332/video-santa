@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Santa's Magical Footprints Hunt! 🎅</title>
   
-    <!-- FIXED: Правильний порядок підключення — MindAR v1.1.4 (UMD, без ESM) -->
+    <!-- FIXED: Правильний порядок підключення — MindAR v1.1.4 (UMD), + Particle System для снігу/вихору -->
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-particle-system-component@1.1.3/dist/aframe-particle-system-component.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image.prod.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
   
@@ -281,7 +282,7 @@
     </div>
     <!-- AR Scene -->
     <div class="ar-container">
-        <!-- FIXED: AR сцена для підлоги, smoothing для стабільності, видалено mindar-face-overlay -->
+        <!-- FIXED: AR сцена для підлоги, smoothing для стабільності -->
         <a-scene
             id="main-scene"
             mindar-image="imageTargetSrc: targets.mind; autoStart: false; maxTrack: 5; smoothing: true;"
@@ -296,46 +297,78 @@
                 wasd-controls="enabled: false"
                 rotation="0 0 0">
             </a-camera>
-            <!-- Start Target - ВИПРАВЛЕНО ДЛЯ ПІДЛОГИ -->
+            <!-- Start Target - ДОДАНО: Сніг/хуртовина за розміром маркера (scale 0.5 для 500x500), неон glow, вихор 5с -->
             <a-entity mindar-image-target="targetIndex: 0">
-                <!-- Текст на підлозі -->
+                <!-- Неонове світіння: Кільце з glow -->
+                <a-ring color="#00FFFF" emissive="#00FFFF" emissive-intensity="0.5"
+                       radius-inner="0.3" radius-outer="0.5"
+                       rotation="-90 0 0" opacity="0.6"
+                       animation="property: scale; to: 1.2 1.2 1.2; dir: alternate; loop: true; dur: 1500">
+                </a-ring>
+                
+                <!-- Магічний вихор: Vortex particles на 5с перед появою -->
+                <a-entity id="vortex-0" position="0 0.1 0"
+                         particle-system="preset: vortex; color: #00FFFF,#FFD700; particleCount: 100;
+                                        velocityValue: 0 0.2 0; velocitySpread: 1 0.5 1;
+                                        accelerationValue: 0 0.1 0; startSize: 0.05; endSize: 0.01;
+                                        duration: 5; loop: false; startEvents: targetFound">
+                </a-entity>
+                
+                <!-- Сніг/хуртовина: Адаптовано до маркера 500x500 (scale ~0.5, particleCount 200 для покриття) -->
+                <a-entity position="0 0.2 0"
+                         particle-system="preset: snow; color: #FFFFFF,#E0FFFF; particleCount: 200;
+                                        velocityValue: 0 -0.3 0; velocitySpread: 0.5 0 0.5;
+                                        accelerationValue: 0 -0.1 0; startSize: 0.02; endSize: 0.01;
+                                        duration: 10; loop: true; startEvents: appear"
+                         scale="0.5 0.5 0.5">
+                </a-entity>
+                
+                <!-- Текст START з delay після вихору -->
                 <a-text value="START"
                        position="0 0.02 0"
                        align="center"
                        color="#FFD700"
                        scale="0.8 0.8 0.8"
                        rotation="-90 0 0"
-                       animation__scale="property: scale; from: 0.5 0.5 0.5; to: 0.8 0.8 0.8; loop: true; dir: alternate; dur: 2000; easing: easeInOutSine">
+                       animation__scale="property: scale; from: 0.5 0.5 0.5; to: 0.8 0.8 0.8; loop: true; dir: alternate; dur: 2000; easing: easeInOutSine; startEvents: vortexEnd">
                 </a-text>
-               
-                <!-- Частинки, що піднімаються від підлоги -->
-                <a-entity position="0 0.1 0"
-                         particle-system="preset: dust; color: #FFD700,#FFFFFF; particleCount: 30;
-                                        velocityValue: 0 0.5 0; velocitySpread: 0.5 0.2 0.5;
-                                        accelerationValue: 0 0.3 0; startSize: 0.03; endSize: 0.01;
-                                        duration: 3; loop: true">
-                </a-entity>
-                <!-- Підсвічування маркера -->
-                <a-ring color="#FFD700"
-                       radius-inner="0.3"
-                       radius-outer="0.5"
-                       rotation="-90 0 0"
-                       opacity="0.3"
-                       animation="property: scale; to: 1.2 1.2 1.2; dir: alternate; loop: true; dur: 1500">
-                </a-ring>
             </a-entity>
-            <!-- Target 1 - First Footprint - ВИПРАВЛЕНО ДЛЯ ПІДЛОГИ -->
+            <!-- Target 1 - First Footprint - ДОДАНО: Аналогічно для footprint -->
             <a-entity mindar-image-target="targetIndex: 1">
-                <!-- Слід лежить на підлозі -->
+                <!-- Неонове світіння -->
+                <a-ring color="#FF4500" emissive="#FF4500" emissive-intensity="0.5"
+                       radius-inner="0.2" radius-outer="0.4"
+                       rotation="-90 0 0" opacity="0.6"
+                       animation="property: scale; to: 1.1 1.1 1.1; dir: alternate; loop: true; dur: 2000">
+                </a-ring>
+                
+                <!-- Вихор 5с -->
+                <a-entity id="vortex-1" position="0 0.05 0"
+                         particle-system="preset: vortex; color: #FF4500,#FFD700; particleCount: 80;
+                                        velocityValue: 0 0.3 0; velocitySpread: 0.8 0.3 0.8;
+                                        accelerationValue: 0 0.05 0; startSize: 0.04; endSize: 0.005;
+                                        duration: 5; loop: false; startEvents: targetFound">
+                </a-entity>
+                
+                <!-- Сніг/хуртовина -->
+                <a-entity position="0 0.1 0"
+                         particle-system="preset: snow; color: #FFFFFF,#FF4500; particleCount: 150;
+                                        velocityValue: 0 -0.4 0; velocitySpread: 0.4 0 0.4;
+                                        accelerationValue: 0 -0.05 0; startSize: 0.015; endSize: 0.005;
+                                        duration: 8; loop: true; startEvents: appear"
+                         scale="0.5 0.5 0.5">
+                </a-entity>
+                
+                <!-- PNG з delay -->
                 <a-image src="footprints/1.png"
                         width="0.6"
                         height="0.6"
                         position="0 0.01 0"
                         rotation="-90 0 0"
                         scale="0 0 0"
-                        animation__scale="property: scale; to: 1 1 1; dur: 1000; startEvents: appear; easing: easeOutElastic">
+                        animation__scale="property: scale; to: 1 1 1; dur: 1000; startEvents: vortexEnd; easing: easeOutElastic">
                 </a-image>
-               
+                
                 <!-- Текст над слідом -->
                 <a-text id="message-1"
                        value=""
@@ -345,27 +378,43 @@
                        scale="0.6 0.6 0.6"
                        rotation="-90 0 0">
                 </a-text>
-               
-                <!-- Частинки, що виходять з сліду -->
-                <a-entity position="0 0.05 0"
-                         rotation="-90 0 0"
-                         particle-system="preset: dust; color: #FFD700,#FF4500; particleCount: 40;
-                                        velocityValue: 0 0.3 0; velocitySpread: 0.3 0.1 0.3;
-                                        accelerationValue: 0 0.2 0; startSize: 0.02; endSize: 0.01;
-                                        duration: 2; loop: true; startEvents: appear">
-                </a-entity>
             </a-entity>
-            <!-- Target 2 - Second Footprint -->
+            <!-- Target 2 - Second Footprint - АНАЛОГІЧНО -->
             <a-entity mindar-image-target="targetIndex: 2">
+                <!-- Неонове світіння -->
+                <a-ring color="#00BFFF" emissive="#00BFFF" emissive-intensity="0.5"
+                       radius-inner="0.2" radius-outer="0.4"
+                       rotation="-90 0 0" opacity="0.6"
+                       animation="property: scale; to: 1.1 1.1 1.1; dir: alternate; loop: true; dur: 2000">
+                </a-ring>
+                
+                <!-- Вихор 5с -->
+                <a-entity id="vortex-2" position="0 0.05 0"
+                         particle-system="preset: vortex; color: #00BFFF,#9370DB; particleCount: 80;
+                                        velocityValue: 0 0.3 0; velocitySpread: 0.8 0.3 0.8;
+                                        accelerationValue: 0 0.05 0; startSize: 0.04; endSize: 0.005;
+                                        duration: 5; loop: false; startEvents: targetFound">
+                </a-entity>
+                
+                <!-- Сніг/хуртовина -->
+                <a-entity position="0 0.1 0"
+                         particle-system="preset: snow; color: #FFFFFF,#00BFFF; particleCount: 150;
+                                        velocityValue: 0 -0.4 0; velocitySpread: 0.4 0 0.4;
+                                        accelerationValue: 0 -0.05 0; startSize: 0.015; endSize: 0.005;
+                                        duration: 8; loop: true; startEvents: appear"
+                         scale="0.5 0.5 0.5">
+                </a-entity>
+                
+                <!-- PNG з delay -->
                 <a-image src="footprints/2.png"
                         width="0.6"
                         height="0.6"
                         position="0 0.01 0"
                         rotation="-90 0 0"
                         scale="0 0 0"
-                        animation__scale="property: scale; to: 1 1 1; dur: 1000; startEvents: appear; easing: easeOutElastic">
+                        animation__scale="property: scale; to: 1 1 1; dur: 1000; startEvents: vortexEnd; easing: easeOutElastic">
                 </a-image>
-               
+                
                 <a-text id="message-2"
                        value=""
                        position="0 0.15 0"
@@ -374,26 +423,43 @@
                        scale="0.6 0.6 0.6"
                        rotation="-90 0 0">
                 </a-text>
-               
-                <a-entity position="0 0.05 0"
-                         rotation="-90 0 0"
-                         particle-system="preset: dust; color: #00BFFF,#9370DB; particleCount: 45;
-                                        velocityValue: 0 0.4 0; velocitySpread: 0.4 0.15 0.4;
-                                        accelerationValue: 0 0.25 0; startSize: 0.025; endSize: 0.01;
-                                        duration: 2.5; loop: true; startEvents: appear">
-                </a-entity>
             </a-entity>
-            <!-- Target 3 - Third Footprint -->
+            <!-- Target 3 - Third Footprint - АНАЛОГІЧНО -->
             <a-entity mindar-image-target="targetIndex: 3">
+                <!-- Неонове світіння -->
+                <a-ring color="#FF1493" emissive="#FF1493" emissive-intensity="0.5"
+                       radius-inner="0.2" radius-outer="0.4"
+                       rotation="-90 0 0" opacity="0.6"
+                       animation="property: scale; to: 1.1 1.1 1.1; dir: alternate; loop: true; dur: 2000">
+                </a-ring>
+                
+                <!-- Вихор 5с -->
+                <a-entity id="vortex-3" position="0 0.05 0"
+                         particle-system="preset: vortex; color: #FF1493,#FFD700; particleCount: 80;
+                                        velocityValue: 0 0.3 0; velocitySpread: 0.8 0.3 0.8;
+                                        accelerationValue: 0 0.05 0; startSize: 0.04; endSize: 0.005;
+                                        duration: 5; loop: false; startEvents: targetFound">
+                </a-entity>
+                
+                <!-- Сніг/хуртовина -->
+                <a-entity position="0 0.1 0"
+                         particle-system="preset: snow; color: #FFFFFF,#FF1493; particleCount: 150;
+                                        velocityValue: 0 -0.4 0; velocitySpread: 0.4 0 0.4;
+                                        accelerationValue: 0 -0.05 0; startSize: 0.015; endSize: 0.005;
+                                        duration: 8; loop: true; startEvents: appear"
+                         scale="0.5 0.5 0.5">
+                </a-entity>
+                
+                <!-- PNG з delay -->
                 <a-image src="footprints/3.png"
                         width="0.6"
                         height="0.6"
                         position="0 0.01 0"
                         rotation="-90 0 0"
                         scale="0 0 0"
-                        animation__scale="property: scale; to: 1 1 1; dur: 1000; startEvents: appear; easing: easeOutElastic">
+                        animation__scale="property: scale; to: 1 1 1; dur: 1000; startEvents: vortexEnd; easing: easeOutElastic">
                 </a-image>
-               
+                
                 <a-text id="message-3"
                        value=""
                        position="0 0.15 0"
@@ -402,26 +468,41 @@
                        scale="0.6 0.6 0.6"
                        rotation="-90 0 0">
                 </a-text>
-               
-                <a-entity position="0 0.05 0"
-                         rotation="-90 0 0"
-                         particle-system="preset: dust; color: #FF1493,#FFD700; particleCount: 50;
-                                        velocityValue: 0 0.5 0; velocitySpread: 0.5 0.2 0.5;
-                                        accelerationValue: 0 0.3 0; startSize: 0.03; endSize: 0.01;
-                                        duration: 3; loop: true; startEvents: appear">
-                </a-entity>
             </a-entity>
-            <!-- Gift Target - ВИПРАВЛЕНО ДЛЯ ПІДЛОГИ -->
+            <!-- Gift Target - АНАЛОГІЧНО, з вихором -->
             <a-entity mindar-image-target="targetIndex: 4">
-                <!-- Подарунок на підлозі -->
+                <!-- Неонове світіння -->
+                <a-ring color="#FFD700" emissive="#FFD700" emissive-intensity="0.5"
+                       radius-inner="0.4" radius-outer="0.6"
+                       rotation="-90 0 0" opacity="0.6"
+                       animation="property: rotation; to: 0 0 360; loop: true; dur: 4000">
+                </a-ring>
+                
+                <!-- Вихор 5с -->
+                <a-entity id="vortex-4" position="0 0.1 0"
+                         particle-system="preset: vortex; color: #FFD700,#FF69B4; particleCount: 120;
+                                        velocityValue: 0 0.4 0; velocitySpread: 1.2 0.4 1.2;
+                                        accelerationValue: 0 0.1 0; startSize: 0.05; endSize: 0.01;
+                                        duration: 5; loop: false; startEvents: targetFound">
+                </a-entity>
+                
+                <!-- Сніг/хуртовина -->
+                <a-entity position="0 0.2 0"
+                         particle-system="preset: snow; color: #FFFFFF,#FFD700; particleCount: 200;
+                                        velocityValue: 0 -0.5 0; velocitySpread: 0.6 0 0.6;
+                                        accelerationValue: 0 -0.1 0; startSize: 0.02; endSize: 0.005;
+                                        duration: 10; loop: true; startEvents: appear"
+                         scale="0.5 0.5 0.5">
+                </a-entity>
+                
+                <!-- Подарунок з delay -->
                 <a-box color="#c41e3a"
                       position="0 0.3 0"
                       scale="0.4 0.4 0.4"
-                      animation__rotation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear"
-                      animation__position="property: position; to: 0 0.5 0; dir: alternate; loop: true; dur: 1500">
+                      animation__rotation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear; startEvents: vortexEnd"
+                      animation__position="property: position; to: 0 0.5 0; dir: alternate; loop: true; dur: 1500; startEvents: vortexEnd">
                 </a-box>
-               
-                <!-- Текст над подарунком -->
+                
                 <a-text value="GIFT!"
                        position="0 0.7 0"
                        align="center"
@@ -429,22 +510,6 @@
                        scale="0.8 0.8 0.8"
                        rotation="-90 0 0">
                 </a-text>
-               
-                <!-- Святкові частинки -->
-                <a-entity position="0 0.4 0"
-                         particle-system="preset: star; color: #FFD700,#FF69B4,#00FF00; particleCount: 80;
-                                        velocityValue: 0 0.8 0; velocitySpread: 1 0.3 1;
-                                        accelerationValue: 0 0.4 0; startSize: 0.04; endSize: 0.01;
-                                        duration: 4; loop: true">
-                </a-entity>
-                <!-- Кільце навколо подарунка -->
-                <a-ring color="#FFD700"
-                       radius-inner="0.6"
-                       radius-outer="0.8"
-                       rotation="-90 0 0"
-                       opacity="0.2"
-                       animation="property: rotation; to: 0 0 360; loop: true; dur: 4000">
-                </a-ring>
             </a-entity>
         </a-scene>
     </div>
@@ -570,20 +635,29 @@
             currentLanguage = currentLanguage === 'en' ? 'ua' : 'en';
             updateLanguage();
         }
-        // Функція для запуску анімації
+        // ДОДАНО: Обробка вихору — емітувати 'vortexEnd' після 5с
         function showMagicalAppearance(targetIndex) {
             const targetEntity = document.querySelector(`a-entity[mindar-image-target="targetIndex: ${targetIndex}"]`);
             if (targetEntity) {
+                // Запуск вихору на targetFound (вже в animation startEvents)
+                const vortex = targetEntity.querySelector(`#vortex-${targetIndex}`);
+                if (vortex) {
+                    vortex.emit('targetFound'); // Або 'appear', залежно від налаштувань
+                    // Delay 5с для поява PNG
+                    setTimeout(() => {
+                        targetEntity.emit('vortexEnd');
+                    }, 5000);
+                }
+                // Сніг після вихору
+                const snow = targetEntity.querySelector('[particle-system*="snow"]');
+                if (snow) {
+                    setTimeout(() => {
+                        snow.emit('appear');
+                    }, 5000);
+                }
                 const image = targetEntity.querySelector('a-image');
                 if (image) {
                     image.setAttribute('scale', '0 0 0');
-                    setTimeout(() => {
-                        image.emit('appear');
-                    }, 50);
-                }
-                const particles = targetEntity.querySelector('[particle-system]');
-                if (particles) {
-                    particles.emit('appear');
                 }
             }
         }
@@ -615,7 +689,10 @@
                             showMagicalAppearance(3);
                             break;
                         case 4:
-                            showSantaVideo();
+                            showMagicalAppearance(4); // Для Gift
+                            setTimeout(() => {
+                                showSantaVideo();
+                            }, 5000);
                             break;
                     }
                 }
