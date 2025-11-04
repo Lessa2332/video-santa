@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Santa's Magical Footprints Hunt! 🎅</title>
+    <title>Santa's Footprints Hunt! 🎅</title>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image.prod.js"></script>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image-aframe.prod.js"></script>
@@ -50,7 +50,7 @@
             z-index: 2;
         }
         
-        /* Name Input Modal */
+        /* Name Input Modal - Адаптивний */
         .name-modal {
             position: fixed;
             top: 50%;
@@ -105,7 +105,7 @@
             transform: scale(1.05);
         }
         
-        /* Controls */
+        /* Controls - Адаптивні */
         .controls {
             position: fixed;
             bottom: clamp(10px, 3vw, 20px);
@@ -171,7 +171,7 @@
             white-space: nowrap;
         }
         
-        /* Message Display */
+        /* Message Display - Адаптивний */
         .message {
             position: fixed;
             top: clamp(10px, 3vw, 20px);
@@ -192,7 +192,7 @@
             word-wrap: break-word;
         }
         
-        /* Video Modal */
+        /* Video Modal - Адаптивний */
         .video-modal {
             position: fixed;
             top: 50%;
@@ -251,7 +251,7 @@
             display: none;
         }
         
-        /* Target Images */
+        /* Target Images - Адаптивні */
         .targets-container {
             display: flex;
             justify-content: center;
@@ -307,53 +307,111 @@
             font-size: clamp(14px, 4vw, 16px);
         }
         
-        /* Snow overlay */
-        .snow-overlay {
+        /* Orientation Warning */
+        .orientation-warning {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
-            z-index: 1;
-            background: transparent;
-        }
-        
-        .snowflake {
-            position: absolute;
+            background: rgba(0,0,0,0.9);
             color: white;
-            font-size: 20px;
-            user-select: none;
-            pointer-events: none;
-            opacity: 0.8;
-            animation: fall linear infinite;
+            z-index: 1003;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            font-size: clamp(16px, 5vw, 20px);
         }
         
-        @keyframes fall {
-            0% {
-                transform: translateY(-10px) rotate(0deg);
-                opacity: 0;
+        /* Mobile-specific optimizations */
+        @media (max-width: 768px) {
+            .name-modal {
+                width: 95%;
+                padding: 20px 15px;
             }
-            10% {
-                opacity: 1;
+            
+            .controls {
+                bottom: 10px;
+                right: 10px;
             }
-            90% {
-                opacity: 1;
+            
+            .store-btn {
+                bottom: 10px;
+                left: 10px;
             }
-            100% {
-                transform: translateY(100vh) rotate(360deg);
-                opacity: 0;
+        }
+        
+        @media (max-width: 480px) {
+            .target-item {
+                min-width: 60px;
+            }
+            
+            .target-preview {
+                padding: 5px;
+                font-size: 11px;
+            }
+            
+            .message {
+                font-size: 14px;
+                padding: 10px 15px;
+            }
+        }
+        
+        /* Планшети */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .name-modal {
+                max-width: 600px;
+            }
+            
+            .target-preview {
+                font-size: 16px;
+            }
+        }
+        
+        /* Портретна орієнтація */
+        @media (orientation: portrait) and (max-height: 600px) {
+            .name-modal {
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+            
+            .targets-container {
+                gap: 5px;
+            }
+        }
+        
+        /* Ландшафтна орієнтація */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .name-modal {
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            
+            .controls {
+                bottom: 5px;
+                right: 5px;
+            }
+            
+            .store-btn {
+                bottom: 5px;
+                left: 5px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Snow Overlay -->
-    <div id="snowOverlay" class="snow-overlay"></div>
+    <!-- Orientation Warning -->
+    <div id="orientationWarning" class="orientation-warning">
+        <div>
+            <p>📱 Please rotate your device to portrait mode</p>
+            <p>For the best experience</p>
+        </div>
+    </div>
 
     <!-- Loading Screen -->
     <div id="loading" class="loading">
-        <p>🔄 Loading magical game...</p>
+        <p>🔄 Loading game...</p>
         <p>Please wait</p>
     </div>
 
@@ -376,78 +434,38 @@
             
             <a-camera active="false" position="0 0 0"></a-camera>
 
-            <!-- Snow Particle System -->
-            <a-entity id="snow-particles" particle-system="preset: snow; color: #FFFFFF; particleCount: 200"></a-entity>
-
             <!-- Start Target -->
             <a-entity mindar-image-target="targetIndex: 0">
-                <!-- Snow effect -->
-                <a-entity class="snow-effect" particle-system="preset: snow; color: #FFFFFF; particleCount: 50" position="0 1 0"></a-entity>
-                
-                <a-box color="#c41e3a" position="0 0 0" rotation="0 0 0" scale="0.8 0.8 0.8"
+                <a-box color="#c41e3a" position="0 0.5 0" rotation="0 0 0"
                       animation="property: rotation; to: 0 360 0; loop: true; dur: 4000">
                 </a-box>
-                <a-text id="start-text" value="Start Game!" position="0 1.2 0" align="center" color="#FFD700" scale="1.5 1.5 1.5"></a-text>
+                <a-text id="start-text" value="Start Game!" position="0 1.5 0" align="center" color="#FFD700"></a-text>
             </a-entity>
 
             <!-- Target 1 - First Footprint -->
             <a-entity mindar-image-target="targetIndex: 1">
-                <!-- Snow animation container -->
-                <a-entity id="footprint-container-1" position="0 0 0">
-                    <a-image id="footprint-1" src="footprints/1.png" width="0.8" height="0.8" position="0 0 0" 
-                            scale="0.1 0.1 0.1" opacity="0"
-                            animation="property: scale; to: 1 1 1; dur: 1500; easing: easeOutElastic; startEvents: appear">
-                    </a-image>
-                </a-entity>
-                <a-text id="message-1" value="" position="0 1.2 0" align="center" color="#FFD700" scale="1.2 1.2 1.2"></a-text>
-                
-                <!-- Sparkle particles -->
-                <a-entity class="sparkle-effect" particle-system="preset: star; color: #FFD700; particleCount: 30" 
-                         position="0 0.4 0" scale="0.5 0.5 0.5">
-                </a-entity>
+                <a-image id="footprint-1" src="footprints/1.png" width="1" height="1" position="0 0.5 0"></a-image>
+                <a-text id="message-1" value="" position="0 1.5 0" align="center" color="#FFD700"></a-text>
             </a-entity>
 
             <!-- Target 2 - Second Footprint -->
             <a-entity mindar-image-target="targetIndex: 2">
-                <a-entity id="footprint-container-2" position="0 0 0">
-                    <a-image id="footprint-2" src="footprints/2.png" width="0.8" height="0.8" position="0 0 0"
-                            scale="0.1 0.1 0.1" opacity="0"
-                            animation="property: scale; to: 1 1 1; dur: 1500; easing: easeOutElastic; startEvents: appear">
-                    </a-image>
-                </a-entity>
-                <a-text id="message-2" value="" position="0 1.2 0" align="center" color="#FFD700" scale="1.2 1.2 1.2"></a-text>
-                
-                <a-entity class="sparkle-effect" particle-system="preset: star; color: #FFD700; particleCount: 30" 
-                         position="0 0.4 0" scale="0.5 0.5 0.5">
-                </a-entity>
+                <a-image id="footprint-2" src="footprints/2.png" width="1" height="1" position="0 0.5 0"></a-image>
+                <a-text id="message-2" value="" position="0 1.5 0" align-items="center" color="#FFD700"></a-text>
             </a-entity>
 
             <!-- Target 3 - Third Footprint -->
             <a-entity mindar-image-target="targetIndex: 3">
-                <a-entity id="footprint-container-3" position="0 0 0">
-                    <a-image id="footprint-3" src="footprints/3.png" width="0.8" height="0.8" position="0 0 0"
-                            scale="0.1 0.1 0.1" opacity="0"
-                            animation="property: scale; to: 1 1 1; dur: 1500; easing: easeOutElastic; startEvents: appear">
-                    </a-image>
-                </a-entity>
-                <a-text id="message-3" value="" position="0 1.2 0" align="center" color="#FFD700" scale="1.2 1.2 1.2"></a-text>
-                
-                <a-entity class="sparkle-effect" particle-system="preset: star; color: #FFD700; particleCount: 30" 
-                         position="0 0.4 0" scale="0.5 0.5 0.5">
-                </a-entity>
+                <a-image id="footprint-3" src="footprints/3.png" width="1" height="1" position="0 0.5 0"></a-image>
+                <a-text id="message-3" value="" position="0 1.5 0" align="center" color="#FFD700"></a-text>
             </a-entity>
 
             <!-- Gift Target -->
             <a-entity mindar-image-target="targetIndex: 4">
-                <!-- Magical particles -->
-                <a-entity class="magic-effect" particle-system="preset: star; color: #FF69B4, #9370DB, #00BFFF; particleCount: 100"
-                         position="0 0.5 0" scale="1.2 1.2 1.2">
-                </a-entity>
-                
-                <a-box color="#c41e3a" position="0 0 0" width="0.8" height="0.8" depth="0.8"
+                <a-box color="#c41e3a" position="0 0.5 0" width="1" height="1" depth="1"
                       animation="property: rotation; to: 0 360 0; loop: true; dur: 3000">
                 </a-box>
-                <a-text id="gift-text" value="Gift!" position="0 1.2 0" align="center" color="#FFD700" scale="1.5 1.5 1.5"></a-text>
+                <a-text id="gift-text" value="Gift!" position="0 1.5 0" align="center" color="#FFD700"></a-text>
             </a-entity>
 
         </a-scene>
@@ -460,13 +478,13 @@
         
         <!-- Name Input Modal -->
         <div id="nameModal" class="name-modal">
-            <h2>🎅 Welcome to Magical Hunt! ✨</h2>
+            <h2>🎅 Welcome to the game! 🎄</h2>
             <p>What's your name, friend?</p>
             <input type="text" id="playerName" class="name-input" placeholder="Your name" maxlength="20">
             <br>
-            <button onclick="startGame()" class="start-btn">Start Magic!</button>
+            <button onclick="startGame()" class="start-btn">Start Adventure!</button>
             <div style="margin-top: 20px;">
-                <p><strong>Magical markers:</strong></p>
+                <p><strong>Game markers:</strong></p>
                 <div class="targets-container">
                     <div class="target-item">
                         <div class="target-preview">🎯 Start</div>
@@ -490,7 +508,7 @@
                     </div>
                 </div>
                 <p style="font-size: clamp(11px, 3vw, 12px); margin-top: 10px; color: #666;">
-                    Print these images to start the magic!
+                    Print these images to play the game!
                 </p>
             </div>
         </div>
@@ -535,79 +553,59 @@
         const languageBtn = document.getElementById('languageBtn');
         const scene = document.getElementById('main-scene');
 
-        // Create snowflakes
-        function createSnowflakes() {
-            const snowOverlay = document.getElementById('snowOverlay');
-            const snowflakes = ['❄️', '✨', '⭐', '💫'];
-            
-            for (let i = 0; i < 30; i++) {
-                const snowflake = document.createElement('div');
-                snowflake.className = 'snowflake';
-                snowflake.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
-                snowflake.style.left = Math.random() * 100 + 'vw';
-                snowflake.style.animationDuration = (Math.random() * 5 + 3) + 's';
-                snowflake.style.animationDelay = Math.random() * 5 + 's';
-                snowflake.style.fontSize = (Math.random() * 10 + 15) + 'px';
-                snowOverlay.appendChild(snowflake);
-            }
-        }
-
-        // Show magical appearance effect
-        function showMagicalAppearance(targetIndex) {
-            const footprint = document.getElementById(`footprint-${targetIndex}`);
-            if (footprint) {
-                // Reset and trigger animation
-                footprint.setAttribute('scale', '0.1 0.1 0.1');
-                footprint.setAttribute('opacity', '1');
-                setTimeout(() => {
-                    footprint.emit('appear');
-                }, 100);
+        // Check device orientation
+        function checkOrientation() {
+            const warning = document.getElementById('orientationWarning');
+            if (window.innerHeight < window.innerWidth && window.innerWidth < 1000) {
+                warning.style.display = 'flex';
+            } else {
+                warning.style.display = 'none';
             }
         }
 
         // Translations
         const translations = {
             en: {
-                welcome: "🎅 Welcome to Magical Hunt! ✨",
+                welcome: "🎅 Welcome to the game! 🎄",
                 nameQuestion: "What's your name, friend?",
                 namePlaceholder: "Your name",
-                startButton: "Start Magic!",
-                markersTitle: "Magical markers:",
-                loading: "🔄 Loading magical game...",
+                startButton: "Start Adventure!",
+                markersTitle: "Game markers:",
+                loading: "🔄 Loading game...",
                 pleaseWait: "Please wait",
                 scanStart: "Scan the start marker to begin!",
-                firstFootprint: "first magical footprint found! ✨",
-                secondFootprint: "second footprint! The magic grows! 🌟",
-                thirdFootprint: "last footprint! Santa is near! 🎁",
-                santaGreeting: "Magical greeting from Santa for",
-                searchFootprints: "follow the magical footprints!",
-                onRightPath: "you're on the right magical path!",
-                almostThere: "the magic is strong! Almost there!",
-                welcomeMessage: "Welcome to the magic",
+                firstFootprint: "first footprint found! 🎯",
+                secondFootprint: "second footprint! Keep going! ✨",
+                thirdFootprint: "last footprint! Go to the gift! 🎁",
+                santaGreeting: "Greeting from Santa for",
+                searchFootprints: "search for Santa's footprints!",
+                onRightPath: "you're on the right path!",
+                almostThere: "almost there!",
+                welcomeMessage: "Welcome",
                 gift: "Gift!",
-                startGame: "Start Magic!",
+                startGame: "Start Game!",
                 store: "🎁 Store",
                 yourName: "What's your name?"
             },
             ua: {
-                welcome: "🎅 Вітаємо у Чарівному Полюванні! ✨",
+                welcome: "🎅 Вітаємо у грі! 🎄",
                 nameQuestion: "Як тебе звати, друже?",
                 namePlaceholder: "Твоє ім'я",
-                startButton: "Почати Магію!",
-                markersTitle: "Чарівні маркери:",
-                loading: "🔄 Завантаження чарівної гри...",
+                startButton: "Почати пригоду!",
+                markersTitle: "Маркери для гри:",
+                loading: "🔄 Завантаження гри...",
                 pleaseWait: "Зачекайте, будь ласка",
-                scanStart: "Скануй стартовий маркер для початку магії!",
-                firstFootprint: "перший чарівний слід знайдено! ✨",
-                secondFootprint: "другий слід! Магія зростає! 🌟",
-                thirdFootprint: "останній слід! Санта вже близько! 🎁",
-                santaGreeting: "Чарівне вітання від Санти для",
-                searchFootprints: "йди за чарівними слідами!",
-                onRightPath: "ти на вірному чарівному шляху!",
-                almostThere: "магія сильна! Майже там!",
-                welcomeMessage: "Вітаємо у світі магії",
+                scanStart: "Скануй стартовий маркер для початку гри!",
+                firstFootprint: "перший слід знайдено! 🎯",
+                secondFootprint: "другий слід! Продовжуй! ✨",
+                thirdFootprint: "останній слід! Йди до подарунка! 🎁",
+                santaGreeting: "Вітання від Санти для",
+                searchFootprints: "шукай сліди Санти!",
+                onRightPath: "ти на вірному шляху!",
+                almostThere: "майже там!",
+                welcomeMessage: "Вітаю",
                 gift: "Подарунок!",
-                startGame: "Почати Магію!",
+                startGame: "Почни гру!",
                 store: "🎁 Магазин",
                 yourName: "Як тебе звати?"
             }
@@ -658,31 +656,16 @@
                     switch(targetIndex) {
                         case 1:
                             showMessage(`${playerName}, ${t.firstFootprint}`);
-                            showMagicalAppearance(1);
                             break;
                         case 2:
                             showMessage(`${playerName}, ${t.secondFootprint}`);
-                            showMagicalAppearance(2);
                             break;
                         case 3:
                             showMessage(`${playerName}, ${t.thirdFootprint}`);
-                            showMagicalAppearance(3);
                             break;
                         case 4:
                             showSantaVideo();
                             break;
-                    }
-                }
-            });
-
-            // Reset footprints when target is lost
-            scene.addEventListener('targetLost', event => {
-                const targetIndex = event.target.getAttribute('mindar-image-target').targetIndex;
-                if (targetIndex >= 1 && targetIndex <= 3) {
-                    const footprint = document.getElementById(`footprint-${targetIndex}`);
-                    if (footprint) {
-                        footprint.setAttribute('scale', '0.1 0.1 0.1');
-                        footprint.setAttribute('opacity', '0');
                     }
                 }
             });
@@ -705,7 +688,7 @@
             document.getElementById('message-2').setAttribute('value', `${playerName}, ${t.onRightPath}`);
             document.getElementById('message-3').setAttribute('value', `${playerName}, ${t.almostThere}`);
             
-            showMessage(`${t.welcomeMessage} ${playerName}! ✨`);
+            showMessage(`${t.welcomeMessage} ${playerName}! ${t.searchFootprints}`);
             
             const arSystem = scene.systems['mindar-image-system'];
             if (arSystem) {
@@ -746,7 +729,7 @@
             
             videoModal.style.display = 'block';
             santaVideo.play();
-            showMessage(`${t.santaGreeting} ${playerName}! 🎅✨`);
+            showMessage(`${t.santaGreeting} ${playerName}! 🎅`);
         }
 
         function closeVideo() {
@@ -766,13 +749,15 @@
         scene.addEventListener('loaded', function() {
             document.getElementById('loading').classList.add('hidden');
             setupEventListeners();
-            createSnowflakes();
         });
 
         scene.addEventListener('error', function() {
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('errorMessage').style.display = 'block';
         });
+
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', checkOrientation);
 
         document.addEventListener('visibilitychange', function() {
             if (document.hidden && musicPlaying) {
@@ -782,9 +767,26 @@
             }
         });
 
+        // Prevent zoom on mobile
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(e) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
         // Initialize
         window.addEventListener('DOMContentLoaded', () => {
             updateLanguage();
+            checkOrientation();
         });
     </script>
 </body>
