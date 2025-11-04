@@ -248,6 +248,21 @@
             margin-top: 2px;
             color: #333;
         }
+
+        /* Error Message */
+        .error-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 1002;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -257,11 +272,62 @@
         <p>Please wait</p>
     </div>
 
+    <!-- Error Message -->
+    <div id="errorMessage" class="error-message">
+        <p>🚨 AR system failed to load</p>
+        <p>Please check if targets.mind file exists</p>
+        <button onclick="location.reload()" style="margin-top: 10px; padding: 5px 10px;">Retry</button>
+    </div>
+
     <!-- AR Scene -->
     <div class="ar-container">
-        <div id="ar-scene" style="width: 100%; height: 100%;">
-            <!-- MindAR Scene will be loaded here -->
-        </div>
+        <!-- Fixed MindAR Scene -->
+        <a-scene 
+            id="main-scene"
+            mindar-image="imageTargetSrc: targets.mind; autoStart: false; maxTrack: 5;"
+            color-space="sRGB"
+            embedded
+            renderer="colorManagement: true;"
+            vr-mode-ui="enabled: false">
+            
+            <!-- Camera -->
+            <a-camera active="false" position="0 0 0"></a-camera>
+
+            <!-- Start Target -->
+            <a-entity mindar-image-target="targetIndex: 0">
+                <a-box color="#c41e3a" position="0 0.5 0" rotation="0 0 0"
+                      animation="property: rotation; to: 0 360 0; loop: true; dur: 4000">
+                </a-box>
+                <a-text id="start-text" value="Start Game!" position="0 1.5 0" align="center" color="#FFD700"></a-text>
+            </a-entity>
+
+            <!-- Target 1 - First Footprint -->
+            <a-entity mindar-image-target="targetIndex: 1">
+                <a-image id="footprint-1" src="footprints/1.png" width="1" height="1" position="0 0.5 0"></a-image>
+                <a-text id="message-1" value="" position="0 1.5 0" align="center" color="#FFD700"></a-text>
+            </a-entity>
+
+            <!-- Target 2 - Second Footprint -->
+            <a-entity mindar-image-target="targetIndex: 2">
+                <a-image id="footprint-2" src="footprints/2.png" width="1" height="1" position="0 0.5 0"></a-image>
+                <a-text id="message-2" value="" position="0 1.5 0" align="center" color="#FFD700"></a-text>
+            </a-entity>
+
+            <!-- Target 3 - Third Footprint -->
+            <a-entity mindar-image-target="targetIndex: 3">
+                <a-image id="footprint-3" src="footprints/3.png" width="1" height="1" position="0 0.5 0"></a-image>
+                <a-text id="message-3" value="" position="0 1.5 0" align="center" color="#FFD700"></a-text>
+            </a-entity>
+
+            <!-- Gift Target -->
+            <a-entity mindar-image-target="targetIndex: 4">
+                <a-box color="#c41e3a" position="0 0.5 0" width="1" height="1" depth="1"
+                      animation="property: rotation; to: 0 360 0; loop: true; dur: 3000">
+                </a-box>
+                <a-text id="gift-text" value="Gift!" position="0 1.5 0" align="center" color="#FFD700"></a-text>
+            </a-entity>
+
+        </a-scene>
     </div>
     
     <!-- UI Overlay -->
@@ -340,11 +406,11 @@
         let playerName = '';
         let gameStarted = false;
         let musicPlaying = false;
-        let scene = null;
-        let currentLanguage = 'en'; // 'en' or 'ua'
+        let currentLanguage = 'en';
         const backgroundMusic = document.getElementById('backgroundMusic');
         const musicBtn = document.getElementById('musicBtn');
         const languageBtn = document.getElementById('languageBtn');
+        const scene = document.getElementById('main-scene');
 
         // Translations
         const translations = {
@@ -415,7 +481,10 @@
             // Update language button
             languageBtn.textContent = currentLanguage === 'en' ? 'UA' : 'EN';
             
-            // Update AR text if game has started
+            // Update AR text
+            document.getElementById('start-text').setAttribute('value', t.startGame);
+            document.getElementById('gift-text').setAttribute('value', t.gift);
+            
             if (gameStarted && playerName) {
                 document.getElementById('message-1').setAttribute('value', `${playerName}, ${t.searchFootprints}`);
                 document.getElementById('message-2').setAttribute('value', `${playerName}, ${t.onRightPath}`);
@@ -429,142 +498,10 @@
             updateLanguage();
         }
 
-        // Initialize MindAR
-        function initializeAR() {
-            const mindarScene = document.createElement('a-scene');
-            mindarScene.setAttribute('mindar-image', 'imageTargetSrc: targets.mind; autoStart: false; maxTrack: 5;');
-            mindarScene.setAttribute('color-space', 'sRGB');
-            mindarScene.setAttribute('embedded', '');
-            mindarScene.setAttribute('renderer', 'colorManagement: true;');
-            mindarScene.setAttribute('cursor', 'rayOrigin: mouse');
-            
-            // Start Target
-            const startEntity = document.createElement('a-entity');
-            startEntity.setAttribute('mindar-image-target', 'targetIndex: 0');
-            
-            const startBox = document.createElement('a-box');
-            startBox.setAttribute('color', '#c41e3a');
-            startBox.setAttribute('position', '0 0.5 0');
-            startBox.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 4000');
-            
-            const startText = document.createElement('a-text');
-            startText.setAttribute('value', translations[currentLanguage].startGame);
-            startText.setAttribute('position', '0 1.5 0');
-            startText.setAttribute('align', 'center');
-            startText.setAttribute('color', '#FFD700');
-            
-            startEntity.appendChild(startBox);
-            startEntity.appendChild(startText);
-            mindarScene.appendChild(startEntity);
-            
-            // Target 1 - First Footprint
-            const target1 = document.createElement('a-entity');
-            target1.setAttribute('mindar-image-target', 'targetIndex: 1');
-            
-            const footprint1 = document.createElement('a-image');
-            footprint1.setAttribute('src', 'footprints/1.png');
-            footprint1.setAttribute('width', '1');
-            footprint1.setAttribute('height', '1');
-            footprint1.setAttribute('position', '0 0.5 0');
-            
-            const text1 = document.createElement('a-text');
-            text1.setAttribute('id', 'message-1');
-            text1.setAttribute('value', '');
-            text1.setAttribute('position', '0 1.5 0');
-            text1.setAttribute('align', 'center');
-            text1.setAttribute('color', '#FFD700');
-            
-            target1.appendChild(footprint1);
-            target1.appendChild(text1);
-            mindarScene.appendChild(target1);
-            
-            // Target 2 - Second Footprint
-            const target2 = document.createElement('a-entity');
-            target2.setAttribute('mindar-image-target', 'targetIndex: 2');
-            
-            const footprint2 = document.createElement('a-image');
-            footprint2.setAttribute('src', 'footprints/2.png');
-            footprint2.setAttribute('width', '1');
-            footprint2.setAttribute('height', '1');
-            footprint2.setAttribute('position', '0 0.5 0');
-            
-            const text2 = document.createElement('a-text');
-            text2.setAttribute('id', 'message-2');
-            text2.setAttribute('value', '');
-            text2.setAttribute('position', '0 1.5 0');
-            text2.setAttribute('align', 'center');
-            text2.setAttribute('color', '#FFD700');
-            
-            target2.appendChild(footprint2);
-            target2.appendChild(text2);
-            mindarScene.appendChild(target2);
-            
-            // Target 3 - Third Footprint
-            const target3 = document.createElement('a-entity');
-            target3.setAttribute('mindar-image-target', 'targetIndex: 3');
-            
-            const footprint3 = document.createElement('a-image');
-            footprint3.setAttribute('src', 'footprints/3.png');
-            footprint3.setAttribute('width', '1');
-            footprint3.setAttribute('height', '1');
-            footprint3.setAttribute('position', '0 0.5 0');
-            
-            const text3 = document.createElement('a-text');
-            text3.setAttribute('id', 'message-3');
-            text3.setAttribute('value', '');
-            text3.setAttribute('position', '0 1.5 0');
-            text3.setAttribute('align', 'center');
-            text3.setAttribute('color', '#FFD700');
-            
-            target3.appendChild(footprint3);
-            target3.appendChild(text3);
-            mindarScene.appendChild(target3);
-            
-            // Gift Target - Video
-            const giftTarget = document.createElement('a-entity');
-            giftTarget.setAttribute('mindar-image-target', 'targetIndex: 4');
-            
-            const giftBox = document.createElement('a-box');
-            giftBox.setAttribute('color', '#c41e3a');
-            giftBox.setAttribute('position', '0 0.5 0');
-            giftBox.setAttribute('width', '1');
-            giftBox.setAttribute('height', '1');
-            giftBox.setAttribute('depth', '1');
-            giftBox.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 3000');
-            
-            const giftText = document.createElement('a-text');
-            giftText.setAttribute('value', translations[currentLanguage].gift);
-            giftText.setAttribute('position', '0 1.5 0');
-            giftText.setAttribute('align', 'center');
-            giftText.setAttribute('color', '#FFD700');
-            
-            giftTarget.appendChild(giftBox);
-            giftTarget.appendChild(giftText);
-            mindarScene.appendChild(giftTarget);
-            
-            // Camera
-            const camera = document.createElement('a-entity');
-            camera.setAttribute('camera', '');
-            mindarScene.appendChild(camera);
-            
-            document.getElementById('ar-scene').appendChild(mindarScene);
-            scene = mindarScene;
-            
-            // Hide loading screen
-            document.getElementById('loading').classList.add('hidden');
-            
-            // Add event listeners when scene is loaded
-            mindarScene.addEventListener('loaded', function() {
-                setupEventListeners();
-            });
-        }
-
-        // Setup event listeners for targets
+        // Setup event listeners
         function setupEventListeners() {
-            const sceneEl = document.querySelector('a-scene');
-            
             // Target found events
-            sceneEl.addEventListener('targetFound', event => {
+            scene.addEventListener('targetFound', event => {
                 const targetIndex = event.target.getAttribute('mindar-image-target').targetIndex;
                 const t = translations[currentLanguage];
                 
@@ -614,7 +551,9 @@
             
             // Start AR system
             const arSystem = scene.systems['mindar-image-system'];
-            arSystem.start();
+            if (arSystem) {
+                arSystem.start();
+            }
             
             // Start background music
             backgroundMusic.volume = 0.3;
@@ -672,7 +611,19 @@
             location.reload();
         }
 
-        // Handle page visibility changes (for music)
+        // Handle scene load
+        scene.addEventListener('loaded', function() {
+            document.getElementById('loading').classList.add('hidden');
+            setupEventListeners();
+        });
+
+        // Handle scene errors
+        scene.addEventListener('error', function() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('errorMessage').style.display = 'block';
+        });
+
+        // Handle page visibility changes
         document.addEventListener('visibilitychange', function() {
             if (document.hidden && musicPlaying) {
                 backgroundMusic.pause();
@@ -683,8 +634,7 @@
 
         // Initialize the application
         window.addEventListener('DOMContentLoaded', () => {
-            initializeAR();
-            updateLanguage(); // Set initial language
+            updateLanguage();
         });
     </script>
 </body>
